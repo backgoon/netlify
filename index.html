@@ -103,12 +103,12 @@ const firebaseConfig = {
     });
     
     // --- 2. 포스트잇 클릭 시 바로 커서 깜빡이게 하기 ---
-    const memoContainer = document.querySelector('.memo-container');
-    const memoArea = document.getElementById('memo-area');
+    // const memoContainer = document.querySelector('.memo-container');
+    // const memoArea = document.getElementById('memo-area');
     
-    memoContainer.addEventListener('click', () => {
-        memoArea.focus(); // 영역 클릭 시 무조건 입력창에 포커스
-    });
+    // memoContainer.addEventListener('click', () => {
+    //     memoArea.focus(); // 영역 클릭 시 무조건 입력창에 포커스
+    // });
 
     window.renderCalendar = function() {
         const grid = document.getElementById('calendar-grid');
