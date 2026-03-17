@@ -5,48 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3040 홀브 일정</title>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Gaegu:wght@400;700&display=swap');
-    :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --mint: #e0f2f1; }
-    body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 10px; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap');
+    :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --mint: #e0f2f1; --sat: #1e88e5; --sun: #e53935; }
     
+    body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 10px; overflow-x: hidden; width: 100%; box-sizing: border-box; }
     .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 15px; border: 1px solid var(--soft-pink); }
     .year-area { display: flex; align-items: center; white-space: nowrap; font-size: 28px; font-weight: 800; color: var(--blue); }
     .today-btn { padding: 5px 12px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 8px; }
 
-    /* 커서 해결을 위한 끝판왕 설정 */
-    .memo-container { position: relative; background: var(--mint); width: 450px; height: 180px; padding: 12px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transform: rotate(-0.5deg); border-left: 10px solid #b2dfdb; z-index: 100; overflow: hidden; }
+    /* 메모장: 폰트를 나눔고딕으로 통일하여 커서 문제 해결 */
+    .memo-container { position: relative; background: var(--mint); width: 450px; height: 180px; padding: 12px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transform: rotate(-0.5deg); border-left: 10px solid #b2dfdb; z-index: 100; }
     #memo-area { 
         width: 100%; height: 100%; background: transparent; border: none; 
-        font-family: 'Gaegu', cursive; font-size: 20px; 
-        line-height: 34px; /* 줄 간격을 더 넓게 고정해서 커서 공간 확보 */
-        resize: none; outline: none; display: block; color: #333; 
-        caret-color: #ff3366 !important; /* 다시 눈에 띄는 핑크 커서로 */
-        padding: 5px; box-sizing: border-box; 
-        overflow-y: auto; position: relative; z-index: 101;
-        /* 브라우저 폰트 렌더링 최적화 */
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        appearance: none;
-        -webkit-appearance: none;
+        font-family: 'Nanum Gothic', sans-serif; font-size: 16px; font-weight: 600;
+        line-height: 1.8; resize: none; outline: none; display: block; color: #333; 
+        caret-color: #ff3366 !important; /* 커서 색상 강조 */
+        padding: 5px; box-sizing: border-box; overflow-y: auto;
     }
 
+    /* 달력 주말 색상 설정 */
+    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
+    .day-header { text-align: center; font-weight: bold; padding: 5px; color: var(--pink); font-size: 12px; }
+    .day-header:nth-child(1) { color: var(--sun); } /* 일요일 헤더 */
+    .day-header:nth-child(7) { color: var(--sat); } /* 토요일 헤더 */
+
+    .day { min-height: 90px; background: white; border: 1px solid #ffeef1; border-radius: 6px; padding: 6px; cursor: pointer; position: relative; font-size: 13px; display: flex; flex-direction: column; }
+    .day.today { border: 2px solid var(--pink); background: var(--today); }
+    
+    /* 날짜 숫자 색상 */
+    .day .date-num { font-weight: bold; margin-bottom: 4px; }
+    .day.sun .date-num { color: var(--sun); } /* 일요일 숫자 빨강 */
+    .day.sat .date-num { color: var(--sat); } /* 토요일 숫자 파랑 */
+
+    .event-tag { font-size: 10px; font-weight: 600; padding: 2px 4px; margin: 1px 0; border-radius: 3px; color: #333; display: block; white-space: normal; word-break: break-all; line-height: 1.1; }
+    
     @media (max-width: 768px) {
         .memo-container { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #b2dfdb; transform: rotate(0); padding: 0; display: flex; justify-content: center; align-items: center; }
-        .memo-container::before { content: '📝'; font-size: 20px; pointer-events: none; }
+        .memo-container::before { content: '📝'; font-size: 20px; }
         .memo-container.active { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 350px; border-radius: 15px; padding: 20px; z-index: 1000; box-shadow: 0 10px 50px rgba(0,0,0,0.3); background: var(--mint); }
-        .memo-container.active #memo-area { display: block; line-height: 32px; font-size: 19px; }
+        .memo-container.active #memo-area { display: block; }
         .memo-container.active::before { content: ''; }
     }
-
+    
+    /* 나머지 모달 등 기존 스타일 유지 */
     .nav-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
     .nav-btn { padding: 8px 16px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
     .calendar-card { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); width: 100%; box-sizing: border-box; }
-    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
-    .day-header { text-align: center; font-weight: bold; padding: 5px; color: var(--pink); font-size: 12px; }
-    .day-header:nth-child(1) { color: #e53935; } .day-header:nth-child(7) { color: #1e88e5; }
-    .day { min-height: 85px; background: white; border: 1px solid #ffeef1; border-radius: 6px; padding: 4px; cursor: pointer; position: relative; font-size: 12px; display: flex; flex-direction: column; overflow: hidden; }
-    .day.today { border: 2px solid var(--pink); background: var(--today); }
-    .event-tag { font-size: 10px; font-weight: 600; padding: 2px 4px; margin: 1px 0; border-radius: 3px; color: #333; display: block; white-space: normal; word-break: break-all; line-height: 1.1; }
     .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 20px; z-index: 1001; width: 280px; border: 3px solid var(--pink); }
     .add-btn { width: 100%; padding: 12px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; }
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
@@ -141,15 +145,32 @@
             grid.innerHTML = '';
             document.getElementById('display-year').innerText = currentYear;
             document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
+            
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
             ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
+            
             for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
+            
             for(let d=1; d<=lastDate; d++) {
                 const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-                const isToday = (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate());
+                const dayOfWeek = new Date(currentYear, currentMonth, d).getDay(); // 0:일, 6:토
+                
+                let dayClass = "day";
+                if (dayOfWeek === 0) dayClass += " sun";
+                if (dayOfWeek === 6) dayClass += " sat";
+                if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
+                    dayClass += " today";
+                }
+        
                 const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
-                grid.innerHTML += `<div class="day ${isToday?'today':''}" onclick="openModal('${dateStr}')"><strong>${d}</strong><div>${tags}</div></div>`;
+                
+                grid.innerHTML += `
+                    <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
+                        <span class="date-num">${d}</span>
+                        <div>${tags}</div>
+                    </div>`;
             }
         }
 
