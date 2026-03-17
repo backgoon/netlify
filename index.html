@@ -62,25 +62,8 @@
 <div class="calendar-card"><div class="grid" id="calendar-grid"></div></div>
     
 <div class="overlay" id="overlay" onclick="closeModal()"></div>
-memoContainer.addEventListener('click', (e) => {
-    // 모바일에서 아이콘 클릭 시 확장
-    if (window.innerWidth <= 768) {
-        memoContainer.classList.toggle('active');
-        overlay.style.display = memoContainer.classList.contains('active') ? 'block' : 'none';
-        if(memoContainer.classList.contains('active')) memoArea.focus();
-    } else {
-        // PC에서 클릭 시 무조건 커서 깜빡이게 포커스
-        memoArea.focus();
-    }
-});
+    
 
-// 배경(overlay) 누르면 모바일 메모장 닫기
-overlay.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        memoContainer.classList.remove('active');
-        overlay.style.display = 'none';
-    }
-});
         
 <div class="modal" id="modal">
     <div style="margin-bottom: 15px;">
@@ -135,6 +118,31 @@ const firebaseConfig = {
             await setDoc(doc(db, "planner", "memo"), { text: e.target.value });
             console.log("메모 저장 완료!");
         }, 1000); // 1초 대기
+    });
+
+    const memoContainer = document.querySelector('.memo-container');
+    const memoArea = document.getElementById('memo-area');
+    const overlay = document.getElementById('overlay');
+    
+    // 메모장 클릭 시 동작
+    memoContainer.addEventListener('click', (e) => {
+        // 모바일에서 아이콘 클릭 시 확장
+        if (window.innerWidth <= 768) {
+            memoContainer.classList.toggle('active');
+            overlay.style.display = memoContainer.classList.contains('active') ? 'block' : 'none';
+            if(memoContainer.classList.contains('active')) memoArea.focus();
+        } else {
+            // PC에서 클릭 시 무조건 커서 깜빡이게 포커스
+            memoArea.focus();
+        }
+    });
+    
+    // 배경(overlay) 누르면 모바일 메모장 닫기
+    overlay.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            memoContainer.classList.remove('active');
+            overlay.style.display = 'none';
+        }
     });
     
     // --- 2. 포스트잇 클릭 시 바로 커서 깜빡이게 하기 ---
