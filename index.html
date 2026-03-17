@@ -67,7 +67,21 @@
     .day.sun .date-num { color: var(--sun); } /* 일요일 숫자 빨강 */
     .day.sat .date-num { color: var(--sat); } /* 토요일 숫자 파랑 */
 
-    .event-tag { font-size: 10px; font-weight: 600; padding: 2px 4px; margin: 1px 0; border-radius: 3px; color: #333; display: block; white-space: normal; word-break: break-all; line-height: 1.1; }
+@media (max-width: 768px) {
+    /* ... 다른 모바일 설정들 ... */
+
+    .event-tag {
+        font-size: 9px;           /* 글자 크기를 살짝 줄여서 공간 확보 */
+        width: 28px;              /* 가로 폭을 강제로 제한해서 글자가 밑으로 떨어지게 함 */
+        display: inline-block;    /* 가로로 나열되게 함 */
+        white-space: normal;      /* 줄바꿈 허용 */
+        word-break: break-all;    /* 단어 단위가 아닌 글자 단위로 끊기 */
+        line-height: 1.1;
+        padding: 1px;
+        margin: 1px;
+        text-align: center;       /* 글자 가운데 정렬 */
+    }
+}
     
     @media (max-width: 768px) {
         .memo-container { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #b2dfdb; transform: rotate(0); padding: 0; display: flex; justify-content: center; align-items: center; }
