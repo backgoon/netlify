@@ -1,217 +1,177 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3040 홀브 일정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>승일님의 핑크 플래너</title>
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Gaegu:wght@400;700&display=swap');
-    :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --mint: #e0f2f1; }
-    body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 10px; overflow-x: hidden; width: 100vw; box-sizing: border-box; }
-    .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 15px; border: 1px solid var(--soft-pink); position: relative; }
-    .year-area { display: flex; align-items: center; gap: 8px; font-size: 28px; font-weight: 800; color: var(--blue); }
-    .today-btn { padding: 5px 12px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; font-size: 14px; }
-    .memo-container { position: relative; background: var(--mint); width: 450px; height: 130px; padding: 15px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transform: rotate(-1deg); border-left: 10px solid #b2dfdb; cursor: text; z-index: 100; transition: 0.3s; }
-    #memo-area { width: 100%; height: 100%; background: transparent; border: none; font-family: 'Gaegu', cursive; font-size: 20px; line-height: 1.5; resize: none; outline: none; display: block; caret-color: #333 !important; }
-    @media (max-width: 768px) {
-        .header { padding: 10px; } .year-area { font-size: 22px; }
-        .memo-container { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #b2dfdb; transform: rotate(0); padding: 0; display: flex; justify-content: center; align-items: center; }
-        .memo-container::before { content: '📝'; font-size: 20px; } #memo-area { display: none; }
-        .memo-container.active { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 250px; border-radius: 15px; padding: 15px; z-index: 1000; }
-        .memo-container.active #memo-area { display: block; } .memo-container.active::before { content: ''; }
-    }
-    .nav-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
-    .nav-btn { padding: 8px 16px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
-    .calendar-card { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); width: 100%; box-sizing: border-box; }
-    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
-    .day-header { text-align: center; font-weight: bold; padding: 5px; color: var(--pink); font-size: 12px; }
-    /* 모바일에서 일요일은 빨강, 토요일은 파랑 추가 */
-    .day-header:nth-child(1) { color: #e53935; } .day-header:nth-child(7) { color: #1e88e5; }
-    .day { min-height: 70px; background: white; border: 1px solid #ffeef1; border-radius: 6px; padding: 4px; cursor: pointer; position: relative; overflow: hidden; font-size: 12px; }
-    .day.today { border: 2px solid var(--pink); background: var(--today); }
-    .event-tag { font-size: 10px; font-weight: 600; padding: 1px 3px; margin: 1px 0; border-radius: 3px; color: #333; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 20px; z-index: 1001; width: 280px; border: 3px solid var(--pink); }
-    .add-btn { width: 100%; padding: 12px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; }
-    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
-</style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Gaegu:wght@400;700&display=swap');
+        :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --mint: #e0f2f1; }
+        body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 10px; overflow-x: hidden; width: 100%; box-sizing: border-box; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 15px; border: 1px solid var(--soft-pink); position: relative; }
+        .year-area { display: flex; align-items: center; gap: 8px; font-size: 28px; font-weight: 800; color: var(--blue); }
+        .today-btn { padding: 5px 12px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .memo-container { position: relative; background: var(--mint); width: 450px; height: 130px; padding: 15px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transform: rotate(-1deg); border-left: 10px solid #b2dfdb; cursor: text; z-index: 100; transition: 0.3s; }
+        #memo-area { width: 100%; height: 100%; background: transparent; border: none; font-family: 'Gaegu', cursive; font-size: 20px; line-height: 1.5; resize: none; outline: none; display: block; caret-color: #333 !important; }
+        @media (max-width: 768px) {
+            .header { padding: 10px; } .year-area { font-size: 22px; }
+            .memo-container { width: 45px; height: 45px; border-radius: 50%; border: 3px solid #b2dfdb; transform: rotate(0); padding: 0; display: flex; justify-content: center; align-items: center; }
+            .memo-container::before { content: '📝'; font-size: 20px; } #memo-area { display: none; }
+            .memo-container.active { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 250px; border-radius: 15px; padding: 15px; z-index: 1000; box-shadow: 0 10px 50px rgba(0,0,0,0.3); }
+            .memo-container.active #memo-area { display: block; } .memo-container.active::before { content: ''; }
+        }
+        .nav-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
+        .nav-btn { padding: 8px 16px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .calendar-card { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); width: 100%; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
+        .day-header { text-align: center; font-weight: bold; padding: 5px; color: var(--pink); font-size: 12px; }
+        .day-header:nth-child(1) { color: #e53935; } .day-header:nth-child(7) { color: #1e88e5; }
+        .day { min-height: 70px; background: white; border: 1px solid #ffeef1; border-radius: 6px; padding: 4px; cursor: pointer; position: relative; overflow: hidden; font-size: 12px; }
+        .day.today { border: 2px solid var(--pink); background: var(--today); }
+        .event-tag { font-size: 10px; font-weight: 600; padding: 1px 3px; margin: 1px 0; border-radius: 3px; color: #333; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 20px; z-index: 1001; width: 280px; border: 3px solid var(--pink); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .add-btn { width: 100%; padding: 12px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
+    </style>
 </head>
 <body>
-
-<div class="header">
-    <div class="year-area">
-        <div class="year-title" id="display-year">2026</div><span>년</span>
-        <button class="today-btn" onclick="goToToday()">오늘로</button>
+    <div class="header">
+        <div class="year-area">
+            <span id="display-year"></span>
+            <button class="today-btn" onclick="goToToday()">오늘</button>
+        </div>
+        <div class="memo-container">
+            <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
+        </div>
     </div>
-    <div class="memo-container"><textarea id="memo-area" placeholder="중요 메모"></textarea></div>
-</div>
 
-<div class="nav-control">
-    <button class="nav-btn" onclick="changeMonth(-1)">◀ 이전</button>
-    <div id="month-display" style="font-size: 24px; font-weight: bold; min-width: 100px; text-align: center;">1월</div>
-    <button class="nav-btn" onclick="changeMonth(1)">다음 ▶</button>
-</div>
-
-<div class="calendar-card"><div class="grid" id="calendar-grid"></div></div>
-    
-<div class="overlay" id="overlay" onclick="closeModal()"></div>
-    
-
-        
-<div class="modal" id="modal">
-    <div style="margin-bottom: 15px;">
-        <span id="modal-date-display" style="color: var(--deep-pink); font-weight: bold; font-size: 1.2em;"></span>
-        <span style="color: #666;"> 일정 추가</span>
+    <div class="nav-control">
+        <button class="nav-btn" onclick="changeMonth(-1)">◀ 이전달</button>
+        <span id="month-display" style="font-size: 20px; font-weight: bold; color: var(--blue);"></span>
+        <button class="nav-btn" onclick="changeMonth(1)">다음달 ▶</button>
     </div>
-    <input type="text" id="event-input" placeholder="일정 입력" style="width:90%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid var(--deep-pink);">
-    <div class="color-picker">
-        <div class="color-opt active" style="background:#ffdce0;" onclick="selectColor('#ffdce0', this)"></div>
-        <div class="color-opt" style="background:#e3f2fd;" onclick="selectColor('#e3f2fd', this)"></div>
-        <div class="color-opt" style="background:#e8f5e9;" onclick="selectColor('#e8f5e9', this)"></div>
-        <div class="color-opt" style="background:#fff9c4;" onclick="selectColor('#fff9c4', this)"></div>
+
+    <div class="calendar-card">
+        <div class="grid" id="calendar-grid"></div>
     </div>
-    <button class="add-btn" onclick="addEvent()">저장</button>
-    <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
-</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <div style="margin-bottom: 15px;">
+            <span id="modal-date-display" style="color: var(--pink); font-weight: bold; font-size: 1.1em;"></span>
+            <span style="color: #666;"> 일정 추가</span>
+        </div>
+        <input type="text" id="event-input" placeholder="일정을 입력하세요" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;">
+        <button class="add-btn" onclick="addEvent()">추가하기</button>
+        <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
+    </div>
 
-    // 🔴 본인의 Firebase 설정값으로 교체하세요
-const firebaseConfig = {
-  apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
-  authDomain: "backgoon-811dc.firebaseapp.com",
-  projectId: "backgoon-811dc",
-  storageBucket: "backgoon-811dc.firebasestorage.app",
-  messagingSenderId: "275172993103",
-  appId: "1:275172993103:web:e001d6487f8429d736a23a"
-};
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // 1. 초기 설정 및 변수 선언 (딱 한 번씩만 선언해야 에러가 안 납니다!)
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+        // ⚠️ 이 부분을 본인의 Firebase 설정값으로 꼭 채워주세요!
+        const firebaseConfig = {
+          apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
+          authDomain: "backgoon-811dc.firebaseapp.com",
+          projectId: "backgoon-811dc",
+          storageBucket: "backgoon-811dc.firebasestorage.app",
+          messagingSenderId: "275172993103",
+          appId: "1:275172993103:web:e001d6487f8429d736a23a"
+        };
 
-let currentYear = new Date().getFullYear();
-let currentMonth = new Date().getMonth();
-let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-// DOM 요소 가져오기
-const memoArea = document.getElementById('memo-area');
-const memoContainer = document.querySelector('.memo-container');
-const overlay = document.getElementById('overlay');
+        let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
+        let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer;
 
-// 2. 실시간 데이터 감시 (나머지 중복된 onSnapshot은 모두 지우세요)
-onSnapshot(doc(db, "planner", "data"), (snap) => {
-    if (snap.exists()) { data = snap.data(); renderCalendar(); }
-});
+        const memoArea = document.getElementById('memo-area');
+        const memoContainer = document.querySelector('.memo-container');
+        const overlay = document.getElementById('overlay');
 
-onSnapshot(doc(db, "planner", "memo"), (snap) => {
-    // 내가 입력 중일 때는 외부 업데이트를 무시해서 글자 씹힘 방지
-    if (snap.exists() && document.activeElement !== memoArea) {
-        memoArea.value = snap.data().text;
-    }
-});
-
-// 3. 메모장 클릭 및 입력 로직 (PC 커서 & 모바일 아이콘 통합)
-memoContainer.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        memoContainer.classList.toggle('active');
-        overlay.style.display = memoContainer.classList.contains('active') ? 'block' : 'none';
-    }
-    memoArea.focus(); // PC/모바일 공통으로 커서 강제 활성화
-});
-
-memoArea.addEventListener('input', (e) => {
-    clearTimeout(memoTimer);
-    memoTimer = setTimeout(async () => {
-        await setDoc(doc(db, "planner", "memo"), { text: e.target.value });
-    }, 800); 
-});
-    
-    // 배경(overlay) 누르면 모바일 메모장 닫기
-    overlay.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            memoContainer.classList.remove('active');
-            overlay.style.display = 'none';
-        }
-    });
-    
-    // --- 2. 포스트잇 클릭 시 바로 커서 깜빡이게 하기 ---
-    document.querySelector('.memo-container').addEventListener('click', () => {
-        document.getElementById('memo-area').focus();
-    });
-
-    window.renderCalendar = function() {
-        const grid = document.getElementById('calendar-grid');
-        grid.innerHTML = '';
-        document.getElementById('display-year').innerText = currentYear;
-        document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
-        
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-        ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
-        
-        for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
-        
-        for(let d=1; d<=lastDate; d++) {
-            const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-            const isToday = (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate());
-            
-            const events = data[dateStr] || [];
-            const tags = events.map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
-            
-            // 💡 여기를 ondblclick으로 변경했습니다. 이제 날짜를 빠르게 두 번 눌러야 창이 뜹니다.
-            grid.innerHTML += `
-                <div class="day ${isToday?'today':''}" ondblclick="openModal('${dateStr}')">
-                    <strong>${d}</strong>
-                    <div style="margin-top:5px;">${tags}</div>
-                </div>`;
-        }
-    }
-
-    window.addEvent = async function() {
-        const input = document.getElementById('event-input');
-        const text = input.value;
-        if(!text) return;
-        if(!data[selectedDate]) data[selectedDate] = [];
-        data[selectedDate].push({ text, color: selectedColor });
-        await setDoc(doc(db, "planner", "data"), data);
-        input.value = '';
-        updateModalList();
-        renderCalendar();
-        closeModal(); // 저장 후 자동으로 창 닫기
-    };
-    
-    window.changeMonth = (v) => { currentMonth += v; if(currentMonth<0){currentMonth=11;currentYear--;}else if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
-    window.goToToday = () => { currentYear = new Date().getFullYear(); currentMonth = new Date().getMonth(); renderCalendar(); };
-    // window.openModal = (d) => { selectedDate = d; document.getElementById('modal').style.display='block'; document.getElementById('overlay').style.display='block'; updateModalList(); };
-    window.openModal = (d) => {
-    selectedDate = d;
-    
-    // 날짜 형식을 '2026-3-17'에서 '3월 17일' 형태로 예쁘게 변환
-    const dateParts = d.split('-');
-    const formattedDate = `${dateParts[1]}월 ${dateParts[2]}일`;
-    
-    // 제목에 날짜 넣기
-    document.getElementById('modal-date-display').innerText = formattedDate;
-    
-    document.getElementById('modal').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
-    updateModalList();
-    };
-    
-    window.closeModal = () => { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; };
-    window.selectColor = (c, el) => { selectedColor = c; document.querySelectorAll('.color-opt').forEach(o => o.classList.remove('active')); el.classList.add('active'); };
-    window.updateModalList = () => {
-        const div = document.getElementById('modal-list'); div.innerHTML = '';
-        (data[selectedDate] || []).forEach((ev, i) => {
-            div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:5px;margin-bottom:5px;border-radius:5px;">${ev.text} <button onclick="deleteEvent(${i})">×</button></div>`;
+        // 실시간 감시
+        onSnapshot(doc(db, "planner", "data"), (snap) => { if (snap.exists()) { data = snap.data(); renderCalendar(); } });
+        onSnapshot(doc(db, "planner", "memo"), (snap) => {
+            if (snap.exists() && document.activeElement !== memoArea) { memoArea.value = snap.data().text; }
         });
-    }
-    window.deleteEvent = async (i) => { data[selectedDate].splice(i, 1); await setDoc(doc(db, "planner", "data"), data); updateModalList(); };
 
-    renderCalendar();
-</script>
+        // 메모장 제어
+        memoContainer.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                memoContainer.classList.toggle('active');
+                overlay.style.display = memoContainer.classList.contains('active') ? 'block' : 'none';
+            }
+            memoArea.focus();
+        });
+
+        memoArea.addEventListener('input', (e) => {
+            clearTimeout(memoTimer);
+            memoTimer = setTimeout(async () => { await setDoc(doc(db, "planner", "memo"), { text: e.target.value }); }, 800);
+        });
+
+        overlay.addEventListener('click', () => {
+            if (window.innerWidth <= 768) { memoContainer.classList.remove('active'); overlay.style.display = 'none'; }
+            closeModal();
+        });
+
+        // 나머지 함수 정의
+        window.renderCalendar = function() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            document.getElementById('display-year').innerText = currentYear;
+            document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+            ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
+            for(let d=1; d<=lastDate; d++) {
+                const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
+                const isToday = (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate());
+                const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
+                grid.innerHTML += `<div class="day ${isToday?'today':''}" ondblclick="openModal('${dateStr}')"><strong>${d}</strong><div>${tags}</div></div>`;
+            }
+        }
+
+        window.addEvent = async function() {
+            const input = document.getElementById('event-input');
+            if(!input.value) return;
+            if(!data[selectedDate]) data[selectedDate] = [];
+            data[selectedDate].push({ text: input.value, color: selectedColor });
+            await setDoc(doc(db, "planner", "data"), data);
+            input.value = '';
+            updateModalList();
+            renderCalendar();
+            closeModal();
+        }
+
+        window.changeMonth = (v) => { currentMonth += v; if(currentMonth<0){currentMonth=11;currentYear--;}else if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
+        window.goToToday = () => { currentYear = new Date().getFullYear(); currentMonth = new Date().getMonth(); renderCalendar(); };
+        window.openModal = (d) => { 
+            selectedDate = d; 
+            const dateParts = d.split('-');
+            document.getElementById('modal-date-display').innerText = `${dateParts[1]}월 ${dateParts[2]}일`;
+            document.getElementById('modal').style.display='block'; 
+            document.getElementById('overlay').style.display='block'; 
+            updateModalList(); 
+        };
+        window.closeModal = () => { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; };
+        
+        window.updateModalList = () => {
+            const div = document.getElementById('modal-list'); div.innerHTML = '';
+            (data[selectedDate] || []).forEach((ev, i) => {
+                div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
+            });
+        }
+
+        window.deleteEvent = async (i) => {
+            data[selectedDate].splice(i, 1);
+            await setDoc(doc(db, "planner", "data"), data);
+            updateModalList();
+            renderCalendar();
+        };
+
+        renderCalendar();
+    </script>
 </body>
 </html>
