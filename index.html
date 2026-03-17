@@ -16,14 +16,14 @@
     /* 메모장: 폰트를 나눔고딕으로 통일하여 커서 문제 해결 */
 .memo-container { 
         position: relative; 
-        background: var(--mint); 
+        background: #e0f2f1; /* 민트색 배경 */
         width: 450px; 
         height: 180px; 
-        padding: 12px; 
+        padding: 10px; 
         box-shadow: 5px 5px 15px rgba(0,0,0,0.1); 
-        transform: rotate(-0.5deg); 
         border-left: 10px solid #b2dfdb; 
-        z-index: 100; 
+        z-index: 100;
+        cursor: text; /* 마우스를 올리면 텍스트 커서로 변경 */
     }
 
     #memo-area { 
@@ -34,22 +34,22 @@
         font-family: 'Nanum Gothic', sans-serif; 
         font-size: 16px; 
         font-weight: 600;
-        /* 핵심 1: 줄 간격을 픽셀 단위로 아주 넉넉하게 고정 (30px) */
-        line-height: 30px !important; 
+        line-height: 2.0; /* 줄 간격을 2배로 넓게 잡아 커서 공간 확보 */
         resize: none; 
         outline: none; 
         display: block; 
         color: #333; 
-        /* 핵심 2: 커서 색상을 아주 진한 검정 혹은 보라색으로 강제 고정 */
-        caret-color: #ff00ea !important; 
-        padding: 5px 10px !important; 
+        
+        /* [가장 중요] 커서 색상을 눈에 띄는 진한 빨간색으로 강제 지정 */
+        caret-color: #ff0000 !important; 
+        
+        padding: 10px; 
         box-sizing: border-box; 
         overflow-y: auto;
-        /* 핵심 3: 텍스트 렌더링 강제 최적화 */
-        text-rendering: auto !important;
-        -webkit-font-smoothing: subpixel-antialiased !important;
-        /* 핵심 4: 일부 브라우저에서 커서를 가리는 그림자 효과 제거 */
-        text-shadow: none !important;
+        
+        /* 브라우저 기본 캐럿 설정을 따르도록 강제 */
+        -webkit-appearance: textarea;
+        appearance: textarea;
     }
 
     /* 달력 주말 색상 설정 */
