@@ -124,20 +124,6 @@ const firebaseConfig = {
         }
     }
 
-    window.addEvent = async function() {
-        const text = document.getElementById('event-input').value;
-        if(!text) return;
-        if(!data[selectedDate]) data[selectedDate] = [];
-        data[selectedDate].push({ text, color: selectedColor });
-        await setDoc(doc(db, "planner", "data"), data);
-        document.getElementById('event-input').value = '';
-        updateModalList();
-    }
-
-    document.getElementById('memo-area').addEventListener('input', async (e) => {
-        await setDoc(doc(db, "planner", "memo"), { text: e.target.value });
-    });
-
     window.changeMonth = (v) => { currentMonth += v; if(currentMonth<0){currentMonth=11;currentYear--;}else if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
     window.goToToday = () => { currentYear = new Date().getFullYear(); currentMonth = new Date().getMonth(); renderCalendar(); };
     window.openModal = (d) => { selectedDate = d; document.getElementById('modal').style.display='block'; document.getElementById('overlay').style.display='block'; updateModalList(); };
