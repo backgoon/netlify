@@ -63,19 +63,18 @@
 </div>
 
 <script type="module">
-    // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    // import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { initializeApp } from "firebase/app";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // 🔴 본인의 Firebase 설정값으로 교체하세요
-    const firebaseConfig = {
-      apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
-      authDomain: "backgoon-811dc.firebaseapp.com",
-      projectId: "backgoon-811dc",
-      storageBucket: "backgoon-811dc.firebasestorage.app",
-      messagingSenderId: "275172993103",
-      appId: "1:275172993103:web:e001d6487f8429d736a23a"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
+  authDomain: "backgoon-811dc.firebaseapp.com",
+  projectId: "backgoon-811dc",
+  storageBucket: "backgoon-811dc.firebasestorage.app",
+  messagingSenderId: "275172993103",
+  appId: "1:275172993103:web:e001d6487f8429d736a23a"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
