@@ -6,38 +6,24 @@
     <title>스마트 플래너</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Gaegu:wght@400;700&display=swap');
-        
-        /* 핵심 색상 한 줄 정의 */
-        :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --postit: #fff9c4; }
-    
-        /* 배경 및 기본 폰트 */
+        :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --apricot: #ffecdf; }
         body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 20px; }
-    
-        /* 상단 영역 (년도, 오늘 버튼, 메모장) */
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 20px; border: 1px solid var(--soft-pink); }
         .year-area { display: flex; align-items: center; gap: 10px; font-size: 40px; font-weight: 800; color: var(--blue); }
-        .today-btn { padding: 8px 15px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; }
-    
-        /* 포스트잇 메모장 */
-        .memo-container { background: var(--postit); width: 350px; height: 120px; padding: 15px; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transform: rotate(1deg); border-left: 10px solid #fff176; }
-        #memo-area { width: 100%; height: 100%; background: transparent; border: none; font-family: 'Gaegu', cursive; font-size: 18px; resize: none; outline: none; }
-    
-        /* 달력 컨트롤 및 카드 */
+        .today-btn { padding: 8px 15px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; transition: 0.2s; }
+        .today-btn:hover { background: var(--pink); color: white; }
+        .memo-container { position: relative; background: var(--apricot); width: 350px; height: 120px; padding: 15px; box-shadow: 5px 5px 15px rgba(255,133,161,0.2); transform: rotate(1deg); border-left: 10px solid #ffccbc; cursor: text; z-index: 5; }
+        #memo-area { width: 100%; height: 100%; background: transparent; border: none; font-family: 'Gaegu', cursive; font-size: 19px; resize: none; outline: none; position: relative; z-index: 10; }
         .nav-control { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 20px 0; }
-        .nav-btn { padding: 10px 20px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .nav-btn { padding: 10px 20px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 10px rgba(255,133,161,0.3); }
         .calendar-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); }
-    
-        /* 달력 그리드 및 날짜 칸 */
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         .day-header { text-align: center; font-weight: bold; padding: 10px; color: var(--pink); border-bottom: 2px solid var(--soft-pink); }
-        .day { min-height: 110px; background: white; border: 1px solid #ffeef1; border-radius: 10px; padding: 10px; cursor: pointer; transition: 0.2s; }
+        .day { min-height: 110px; background: white; border: 1px solid #ffeef1; border-radius: 10px; padding: 10px; cursor: pointer; transition: 0.2s; position: relative; }
         .day:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(255,133,161,0.1); border-color: var(--pink); }
         .day.today { border: 2px solid var(--pink); background: var(--today); }
-    
-        /* 일정 태그 및 모달 */
-        .event-tag { font-size: 13px; font-weight: 600; padding: 4px 8px; margin: 4px 0; border-radius: 6px; display: block; color: #333; }
+        .event-tag { font-size: 13px; font-weight: 600; padding: 4px 8px; margin: 4px 0; border-radius: 6px; display: block; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 100; width: 320px; border: 3px solid var(--pink); }
-        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: inline-block; margin: 0 5px; }
         .add-btn { width: 100%; padding: 14px; background: var(--pink); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,133,161,0.15); backdrop-filter: blur(2px); z-index: 99; }
     </style>
@@ -118,8 +104,10 @@ const firebaseConfig = {
     
     // --- 2. 포스트잇 클릭 시 바로 커서 깜빡이게 하기 ---
     const memoContainer = document.querySelector('.memo-container');
+    const memoArea = document.getElementById('memo-area');
+    
     memoContainer.addEventListener('click', () => {
-        memoArea.focus();
+        memoArea.focus(); // 영역 클릭 시 무조건 입력창에 포커스
     });
 
     window.renderCalendar = function() {
