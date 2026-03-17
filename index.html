@@ -130,7 +130,7 @@
                 const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
                 const isToday = (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate());
                 const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
-                grid.innerHTML += `<div class="day ${isToday?'today':''}" ondblclick="openModal('${dateStr}')"><strong>${d}</strong><div>${tags}</div></div>`;
+                grid.innerHTML += `<div class="day ${isToday?'today':''}" onclick="openModal('${dateStr}')"><strong>${d}</strong><div>${tags}</div></div>`;
             }
         }
 
