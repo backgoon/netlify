@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>나만의 웹 계산기</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .calc { border: 2px solid #333; padding: 20px; border-radius: 10px; background: #f9f9f9; }
+        input { width: 200px; height: 40px; text-align: right; margin-bottom: 10px; font-size: 20px; }
+        .btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        button { height: 40px; font-size: 18px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="calc">
+        <input type="text" id="result" readonly>
+        <div class="btns">
+            <button onclick="add('7')">7</button><button onclick="add('8')">8</button><button onclick="add('9')">9</button><button onclick="add('/')">/</button>
+            <button onclick="add('4')">4</button><button onclick="add('5')">5</button><button onclick="add('6')">6</button><button onclick="add('*')">*</button>
+            <button onclick="add('1')">1</button><button onclick="add('2')">2</button><button onclick="add('3')">3</button><button onclick="add('-')">-</button>
+            <button onclick="clearRes()">C</button><button onclick="add('0')">0</button><button onclick="calc()">=</button><button onclick="add('+')">+</button>
+        </div>
+    </div>
+    <script>
+        const res = document.getElementById('result');
+        function add(v) { res.value += v; }
+        function clearRes() { res.value = ''; }
+        function calc() { try { res.value = eval(res.value); } catch { res.value = 'Error'; } }
+    </script>
+</body>
+</html>
