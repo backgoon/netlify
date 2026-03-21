@@ -71,15 +71,16 @@
     /* ... 다른 모바일 설정들 ... */
 
     .event-tag {
-        font-size: 9px;           /* 글자 크기를 살짝 줄여서 공간 확보 */
-        width: 28px;              /* 가로 폭을 강제로 제한해서 글자가 밑으로 떨어지게 함 */
-        display: inline-block;    /* 가로로 나열되게 함 */
+        font-size: 8.5px;         /* 글자를 아주 살짝 더 줄여서 2글자가 한 줄에 쏙 들어가게 함 */
+        width: 22px;              /* 폭을 22px로 줄여서 2글자 초과 시 무조건 줄바꿈 유도 */
+        display: inline-block;
         white-space: normal;      /* 줄바꿈 허용 */
-        word-break: break-all;    /* 단어 단위가 아닌 글자 단위로 끊기 */
-        line-height: 1.1;
+        word-break: break-all;    /* 글자 단위로 끊기 */
+        line-height: 1.0;         /* 줄 간격을 붙여서 2x2가 하나의 덩어리로 보이게 함 */
         padding: 1px;
         margin: 1px;
-        text-align: center;       /* 글자 가운데 정렬 */
+        text-align: center;
+        border-radius: 2px;
     }
 }
     
