@@ -126,15 +126,19 @@
 
     /* 2. 활성화 상태: 중앙 모달 형태 */
     .memo-container.active {
+        position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        right: auto !important;
         transform: translate(-50%, -50%) !important;
         width: 90% !important;
-        height: 300px !important;
-        border-radius: 15px !important;
-        padding: 15px !important;
-        display: block !important; /* 내부 레이아웃 복구 */
+        height: 350px !important;
+        
+        /* [핵심] 오버레이(999)보다 높은 숫자를 줘야 선명하게 보입니다 */
+        z-index: 1001 !important; 
+        
+        background: #e0f2f1 !important; /* 배경색을 확실히 지정 */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+        display: block !important;
     }
 
     .memo-container.active::before {
