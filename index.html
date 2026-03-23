@@ -586,13 +586,13 @@ window.closeModal = () => {
     if (overlay) overlay.style.display = 'none';
 };
 
-window.updateModalList = () => {
-    const div = document.getElementById('modal-list'); 
-    div.innerHTML = '';
-    (data[selectedDate] || []).forEach((ev, i) => {
-        div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
-    });
-};
+// window.updateModalList = () => {
+//     const div = document.getElementById('modal-list'); 
+//     div.innerHTML = '';
+//     (data[selectedDate] || []).forEach((ev, i) => {
+//         div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
+//     });
+// };
 
 // 초기 실행
 renderCalendar();
