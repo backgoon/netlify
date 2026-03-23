@@ -220,7 +220,7 @@
         <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
     </div> -->
 
-    <div id="modal" class="modal">
+<div id="modal" class="modal">
     <h3 id="modal-date-display"></h3>
     <input type="text" id="event-input" placeholder="일정을 입력하세요">
     
@@ -326,9 +326,9 @@ window.renderCalendar = async function() {
         // 일요일이거나 (API 혹은 사용자 등록) 공휴일이면 빨간색
         if (dayOfWeek === 0 || holidayName) dayClass += " sun";
         if (dayOfWeek === 6) dayClass += " sat";
-        if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
-            dayClass += " today";
-        }
+        // if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
+        //     dayClass += " today";
+        // }
 
         const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
         const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
