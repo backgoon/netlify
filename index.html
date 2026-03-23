@@ -4,233 +4,203 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3040 홀브 일정</title>
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap');
-    :root { --blue: #1a3a6d; --pink: #ff85a1; --soft-pink: #fff0f3; --today: #fffde7; --mint: #e0f2f1; --sat: #1e88e5; --sun: #e53935; }
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+    :root { 
+        --blue: #1a3a6d; 
+        --pink: #ff85a1; 
+        --soft-pink: #fff0f3; 
+        --today: #fffde7; 
+        --mint: #e0f2f1; 
+        --sat: #1e88e5; 
+        --sun: #e53935; 
+    }
     
-    body { font-family: 'Nanum Gothic', sans-serif; background: var(--soft-pink); margin: 0; padding: 10px; overflow-x: hidden; width: 100%; box-sizing: border-box; }
-    .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255,133,161,0.1); margin-bottom: 15px; border: 1px solid var(--soft-pink); }
+    /* 기본 설정 */
+    body { 
+        font-family: 'Nanum Gothic', sans-serif; 
+        background: var(--soft-pink); 
+        margin: 0; 
+        padding: 10px; 
+        overflow-x: hidden; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+
+    /* 상단 헤더 영역 */
+    .header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: white; 
+        padding: 15px; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 15px rgba(255,133,161,0.1); 
+        margin-bottom: 15px; 
+        border: 1px solid var(--soft-pink); 
+    }
     .year-area { display: flex; align-items: center; white-space: nowrap; font-size: 28px; font-weight: 800; color: var(--blue); }
     .today-btn { padding: 5px 12px; cursor: pointer; background: white; color: var(--pink); border: 2px solid var(--pink); border-radius: 20px; font-weight: bold; font-size: 14px; margin-left: 8px; }
 
+    /* 달력 그리드 레이아웃 */
+    .calendar-card { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); width: 100%; box-sizing: border-box; }
+    
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        grid-auto-rows: minmax(100px, auto); /* [핵심] 내용 많으면 자동 확장 */
+        gap: 4px; 
+        width: 100%; 
+    }
 
-
-    /* 달력 주말 색상 설정 */
-    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
+    /* 요일 헤더 */
     .day-header { text-align: center; font-weight: bold; padding: 5px; color: var(--pink); font-size: 12px; }
-    .day-header:nth-child(1) { color: var(--sun); } /* 일요일 헤더 */
-    .day-header:nth-child(7) { color: var(--sat); } /* 토요일 헤더 */
+    .day-header:nth-child(1) { color: var(--sun); }
+    .day-header:nth-child(7) { color: var(--sat); }
 
-    .day { min-height: 90px; background: white; border: 1px solid #ffeef1; border-radius: 6px; padding: 6px; cursor: pointer; position: relative; font-size: 13px; display: flex; flex-direction: column; }
+    /* 날짜 칸 설정 */
+    .day { 
+        min-height: 100px; 
+        background: white; 
+        border: 1px solid #ffeef1; 
+        border-radius: 6px; 
+        padding: 6px; 
+        cursor: pointer; 
+        position: relative; 
+        font-size: 13px; 
+        display: flex; 
+        flex-direction: column; 
+        height: auto; 
+    }
     .day.today { border: 2px solid var(--pink); background: var(--today); }
     
-    /* 날짜 숫자 색상 */
+    /* [중요] 일요일 및 공휴일 빨간색 강제 적용 */
+    .day.sun .date-num, 
+    .day.sun .holiday-label { 
+        color: var(--sun) !important; 
+    }
+    .day.sat .date-num { color: var(--sat); }
+
     .day .date-num { font-weight: bold; margin-bottom: 4px; }
-    .day.sun .date-num { color: var(--sun); } /* 일요일 숫자 빨강 */
-    .day.sat .date-num { color: var(--sat); } /* 토요일 숫자 파랑 */
 
-@media (max-width: 768px) {
-    /* ... 다른 모바일 설정들 ... */
-
-    .event-tag {
-        font-size: 8.5px;         /* 글자를 아주 살짝 더 줄여서 2글자가 한 줄에 쏙 들어가게 함 */
-        width: 22px;              /* 폭을 22px로 줄여서 2글자 초과 시 무조건 줄바꿈 유도 */
-        display: inline-block;
-        white-space: normal;      /* 줄바꿈 허용 */
-        word-break: break-all;    /* 글자 단위로 끊기 */
-        line-height: 1.0;         /* 줄 간격을 붙여서 2x2가 하나의 덩어리로 보이게 함 */
-        padding: 1px;
-        margin: 1px;
-        text-align: center;
-        border-radius: 2px;
-    }
-}
-        
-.holiday-text {
-    font-size: 10px;
-    color: var(--sun);
-    font-weight: bold;
-    margin-bottom: 2px;
-}
-
-
-/* 메모장: 폰트를 나눔고딕으로 통일하여 커서 문제 해결 */
-.memo-container { 
-    position: relative; 
-    background: #e0f2f1; 
-    width: 450px; 
-    height: 180px; 
-    padding: 10px; 
-    box-shadow: 5px 5px 15px rgba(0,0,0,0.1); 
-    border-left: 10px solid #b2dfdb; 
-    z-index: 100;
-    cursor: text;
-}
-
-#memo-area { 
-    width: 100%; 
-    height: 100%; 
-    background: transparent; 
-    border: none; 
-    /* 1. 폰트를 나눔고딕으로 하되, 아주 진하고 선명하게 설정 */
-    font-family: 'Nanum Gothic', sans-serif; 
-    font-size: 16px; 
-    font-weight: 800; /* 숫자가 높을수록 글자가 두껍고 선명해집니다 */
-    line-height: 1.8; 
-    resize: none; 
-    outline: none; 
-    display: block; 
-    color: #1a1a1a; /* 거의 검정에 가까운 색으로 선명도 강화 */
-    
-    /* 2. [만세!] 성공했던 빨간 커서 설정 유지 */
-    caret-color: #ff0000 !important; 
-    
-    padding: 10px; 
-    box-sizing: border-box; 
-    overflow-y: auto;
-    
-    /* 3. 글자가 흐릿하게 뭉치는 현상 방지 */
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-}
-        
-@media (max-width: 768px) {
-    /* 1. 기본 상태: 우측 상단 동그란 아이콘 */
-    .memo-container {
-        position: fixed !important;
-        top: 20px !important;
-        right: 20px !important;
-        width: 50px !important;
-        height: 50px !important;
-        border-radius: 50% !important;
-        border: 3px solid #b2dfdb !important;
-        padding: 0 !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        transform: none !important; /* 회전 제거 */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-    }
-
-    /* 아이콘 표시 */
-    .memo-container:not(.active)::before {
-        content: '📝';
-        font-size: 24px;
+    /* 공휴일 라벨 스타일 */
+    .holiday-label {
+        font-size: 11px;
+        font-weight: 800;
         display: block;
+        margin-bottom: 3px;
+        word-break: break-all;
     }
 
-    /* 아이콘일 때 글상자 숨김 */
-    .memo-container:not(.active) #memo-area {
-        display: none !important;
+    /* 일정 태그 컨테이너 */
+    .event-container {
+        display: flex;
+        flex-wrap: wrap; /* 짧은 일정은 옆으로, 길면 아래로 */
+        gap: 3px;
+        width: 100%;
+        padding: 2px;
+        justify-content: flex-start;
     }
 
-    /* 2. 활성화 상태: 중앙 모달 형태 */
-    .memo-container.active {
-        border-radius: 15px !important;
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 90% !important;
-        height: 350px !important;
-        
-        /* [핵심] 오버레이(999)보다 높은 숫자를 줘야 선명하게 보입니다 */
-        z-index: 1001 !important; padding: 15px !important;
-        display: block !important;
-        background: #e0f2f1 !important; /* 배경색을 확실히 지정 */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    /* 일정 태그 스타일 */
+    .event-tag {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        color: #333;
+        line-height: 1.4;
+        max-width: 95%; 
+        word-break: break-all;
+        white-space: normal;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        cursor: pointer;
     }
 
-    .memo-container.active::before {
-        content: none !important; /* 아이콘 숨기기 */
+    /* 메모장 컨테이너 및 영역 */
+    .memo-container { 
+        position: relative; 
+        background: #e0f2f1; 
+        width: 450px; 
+        height: 180px; 
+        padding: 10px; 
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.1); 
+        border-left: 10px solid #b2dfdb; 
+        z-index: 100;
+        cursor: text;
     }
 
-    .memo-container.active #memo-area {
-        display: block !important; /* 글상자 보이기 */
+    #memo-area { 
+        width: 100%; height: 100%; 
+        background: transparent; 
+        border: none; 
+        font-family: 'Nanum Gothic', sans-serif; 
+        font-size: 16px; 
+        font-weight: 800; 
+        line-height: 1.8; 
+        resize: none; 
+        outline: none; 
+        display: block; 
+        color: #1a1a1a; 
+        caret-color: #ff0000 !important; /* 빨간 커서 유지 */
+        padding: 10px; 
+        box-sizing: border-box; 
+        overflow-y: auto;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
 
-    /* 일정 태그 2x2 정렬 유지 */
-    /* .event-tag {
-    display: block; /* 한 줄에 하나씩 쌓이게 변경 */
-    width: 95%;
-    margin: 2px auto;
-    padding: 3px 5px;
-    border-radius: 4px;
-    font-size: 11px;
-    color: #333;
-    line-height: 1.3;
-    
-    /* [핵심] 줄바꿈 설정 */
-    word-break: break-all; /* 영문/숫자 끊어서 줄바꿈 */
-    white-space: normal;   /* 공백 기준 자동 줄바꿈 */
-    text-align: left;
-} */
-.event-tag {
-    display: inline-block; /* [핵심] 글자 길이에 맞게 너비 조절 */
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    color: #333;
-    line-height: 1.4;
-    
-    /* 너무 길어서 달력을 완전히 깨뜨리는 것 방지 */
-    max-width: 95%; 
-    word-break: break-all; /* 아주 긴 단어는 줄바꿈 */
-    white-space: normal;   /* 자연스러운 줄바꿈 허용 */
-    
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    cursor: pointer;
-}
-}
-
-    /* 공휴일 설정 */
-.holiday-label {
-    display: inline-block;
-    font-size: 11px;
-    color: #e53935;
-    font-weight: 800;
-    margin: 2px 0;
-    width: 100%; /* 공휴일 이름은 보통 한 줄을 다 쓰는게 보기 좋습니다 */
-}
-    /* .holiday-label {
-    font-size: 11px;
-    color: #e53935;
-    font-weight: 800;
-    display: block;
-    margin: 2px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* 휴일 이름은 한 줄로 */
-} */
-
-        
-/* .event-container {
-    display: flex;
-    flex-direction: column; /* 세로로 나열 */
-    gap: 1px;
-    width: 100%;
-} */
-
-.event-container {
-    display: flex;
-    flex-wrap: wrap; /* [핵심] 글자가 길면 다음 줄로, 짧으면 옆으로 붙음 */
-    gap: 3px;
-    width: 100%;
-    padding: 2px;
-    justify-content: flex-start; /* 왼쪽 정렬 */
-}
-
-
-/* 일요일 및 공휴일 숫자 빨간색 */
-.day.sun .date-num { color: #e53935 !important; }
-        
-    /* 나머지 모달 등 기존 스타일 유지 */
+    /* 모달 및 컨트롤 */
     .nav-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
     .nav-btn { padding: 8px 16px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
-    .calendar-card { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 8px 25px rgba(255,133,161,0.15); border: 2px solid var(--soft-pink); width: 100%; box-sizing: border-box; }
-    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 20px; z-index: 1001; width: 280px; border: 3px solid var(--pink); }
+    
+    .modal { 
+        display: none; position: fixed; 
+        top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background: white; padding: 20px; border-radius: 20px; 
+        z-index: 1001; width: 280px; border: 3px solid var(--pink); 
+    }
     .add-btn { width: 100%; padding: 12px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; }
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
+
+    /* 모바일 반응형 설정 (768px 이하) */
+    @media (max-width: 768px) {
+        .memo-container {
+            position: fixed !important; top: 20px !important; right: 20px !important;
+            width: 50px !important; height: 50px !important;
+            border-radius: 50% !important; border: 3px solid #b2dfdb !important;
+            padding: 0 !important; display: flex !important;
+            justify-content: center !important; align-items: center !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        }
+        .memo-container:not(.active)::before { content: '📝'; font-size: 24px; }
+        .memo-container:not(.active) #memo-area { display: none !important; }
+
+        .memo-container.active {
+            border-radius: 15px !important; top: 50% !important; left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: 90% !important; height: 350px !important;
+            z-index: 1001 !important; padding: 15px !important;
+            background: #e0f2f1 !important;
+        }
+        .memo-container.active::before { content: none !important; }
+        .memo-container.active #memo-area { display: block !important; }
+
+        /* 모바일용 촘촘한 일정 태그 스타일 */
+        .event-tag {
+            font-size: 8.5px;
+            width: 22px; 
+            display: inline-block;
+            white-space: normal;
+            word-break: break-all;
+            line-height: 1.0;
+            padding: 1px;
+            margin: 1px;
+            text-align: center;
+            border-radius: 2px;
+        }
+    }
 </style>
 </head>
 <body>
@@ -465,39 +435,33 @@ window.renderCalendar = async function() {
     for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
 
     for(let d=1; d<=lastDate; d++) {
-        const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-        const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
-        
-        // 1. 공휴일 정보 가져오기 (API + 사용자 등록)
-        const userEvents = data[dateStr] || [];
-        const userHoliday = userEvents.find(ev => ev.isHoliday);
-        let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
+    const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
+    const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
+    
+    const userEvents = data[dateStr] || [];
+    const userHoliday = userEvents.find(ev => ev.isHoliday);
+    let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
 
-        // 2. ✅ holidayHtml 변수 정의 (여기서 에러가 났던 겁니다!)
-        const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
-
-        // 3. 일반 일정 태그 생성 (공휴일 제외)
-        const tags = userEvents
-            .filter(ev => !ev.isHoliday)
-            .map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`)
-            .join('');
-
-        // 4. 클래스 설정
-        let dayClass = "day";
-        if (dayOfWeek === 0 || holidayName) dayClass += " sun";
-        if (dayOfWeek === 6) dayClass += " sat";
-        if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
-            dayClass += " today";
-        }
-
-        // 5. 그리드에 삽입
-        grid.innerHTML += `
-            <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
-                <span class="date-num">${d}</span>
-                ${holidayHtml}
-                <div class="event-container">${tags}</div>
-            </div>`;
+    // [중요] 일요일(0)이거나 공휴일 이름이 있으면 'sun' 클래스 추가
+    let dayClass = "day";
+    if (dayOfWeek === 0 || holidayName) {
+        dayClass += " sun";
     }
+    if (dayOfWeek === 6) dayClass += " sat";
+
+    const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+    const tags = userEvents
+        .filter(ev => !ev.isHoliday)
+        .map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`)
+        .join('');
+
+    grid.innerHTML += `
+        <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
+            <span class="date-num">${d}</span>
+            ${holidayHtml}
+            <div class="event-container">${tags}</div>
+        </div>`;
+}
 };
 
 // 메모장 제어 로직
