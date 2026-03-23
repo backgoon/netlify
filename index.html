@@ -205,39 +205,48 @@
 
     /* [수정] 일반 일정: 4글자까지 최대한 보여주기 */
     .event-tag {
-        display: block; /* inline-block보다 block이 공간 활용에 유리함 */
-        width: 98%;
-        font-size: 8px; /* 0.5px 더 줄임 */
-        letter-spacing: -0.7px; /* 자간을 더 조여서 글자를 붙임 */
-        padding: 1px 2px;
-        margin: 1px auto;
+        display: block; 
+        width: 100%;
+        font-size: 8.5px; /* 시인성을 위해 8.5px로 소폭 상향 */
+        letter-spacing: -0.8px; 
+        padding: 2px 1px;
+        margin: 1px 0;
         line-height: 1.1;
         text-align: center;
         border-radius: 2px;
-        white-space: nowrap; 
+        
+        /* [핵심] 4글자 이상의 긴 문구를 아래로 보냄 */
+        white-space: normal;      /* 자동 줄바꿈 허용 */
+        word-break: break-all;    /* 한글/영문 상관없이 글자 단위로 끊기 */
+        overflow-wrap: break-word; 
+        
+        /* 혹시 너무 길어져서 칸을 뚫고 나가는 것 방지 */
+        max-height: 40px; 
         overflow: hidden;
-        /* 4글자까지는 안 잘리게 노력하고, 넘어가면 그제서야 ... 표시 */
-        text-overflow: ellipsis; 
     }
 
-    /* [수정] 공휴일 라벨: 6글자가 삐져나가지 않게 처리 */
+    /* [수정] 공휴일 라벨: 길어지면 무조건 두 줄 이상으로 */
     .holiday-label {
-        font-size: 8.5px;
-        letter-spacing: -0.8px; /* 공휴일은 글자가 많으니 자간을 더 빡빡하게 */
+        font-size: 9px;
+        letter-spacing: -0.8px;
         font-weight: 800;
         color: var(--sun) !important;
         display: block;
         text-align: center;
-        margin-bottom: 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        /* 6글자가 넘어가면 삐져나가는 대신 안쪽에서 잘리거나 말줄임 처리 */
-        text-overflow: clip; 
+        margin-bottom: 3px;
+        
+        /* 공휴일도 길면 줄바꿈 처리 */
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.1;
     }
 
+    /* 날짜 숫자 상단 배치 */
     .day .date-num {
         font-size: 10px;
-        margin-bottom: 1px;
+        margin-bottom: 2px;
+        line-height: 1;
+        display: block;
     }
 
     /* 메모장 모바일 설정 (기존 유지) */
