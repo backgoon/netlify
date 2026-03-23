@@ -291,19 +291,37 @@ window.updateModalList = () => {
         return;
     }
 
-    // 공휴일 먼저 정렬해서 보여주기
-    const sortedEvents = [...events].sort((a, b) => (b.isHoliday ? 1 : 0) - (a.isHoliday ? 1 : 0));
+    // [핵심] 공휴일을 가장 위로 올리기 위해 정렬 (isHoliday가 true인 것을 우선)
+    const sortedEvents = [...events].sort((a, b) => {
+        if (a.isHoliday === b.isHoliday) return 0;
+        return a.isHoliday ? -1 : 1;
+    });
 
-    sortedEvents.forEach((ev, i) => {
+    sortedEvents.forEach((ev) => {
+        // 원래 배열(data[selectedDate])에서의 실제 인덱스를 찾음 (수정/삭제용)
+        const originalIndex = events.indexOf(ev);
         const isHoli = ev.isHoliday;
+
         div.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:${isHoli ? '#fff5f5' : (ev.color || '#eee')}; 
-                        padding:10px; margin-bottom:6px; border-radius:10px; border:${isHoli ? '1.5px solid #ffcdd2' : 'none'};">
-                <span onclick="prepareEdit(${events.indexOf(ev)})" style="cursor:pointer; flex:1; font-size:13px; font-weight:${isHoli ? '800' : 'normal'}; color:${isHoli ? '#d32f2f' : '#333'};">
-                    ${isHoli ? '🚩 ' : '• '}${ev.text}
+            <div style="display:flex; justify-content:space-between; align-items:center; 
+                        background:${isHoli ? '#fff5f5' : (ev.color || '#eee')}; 
+                        padding:10px; margin-bottom:8px; border-radius:10px; 
+                        border:${isHoli ? '2px solid #ffcdd2' : '1px solid #eee'}; 
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                
+                <span onclick="prepareEdit(${originalIndex})" style="cursor:pointer; flex:1; font-size:13px; display:flex; align-items:center; gap:5px;">
+                    ${isHoli ? '<b style="color:#d32f2f;">🚩</b>' : '<span style="color:#888;">•</span>'}
+                    <span style="font-weight:${isHoli ? 'bold' : 'normal'}; color:${isHoli ? '#d32f2f' : '#333'};">
+                        ${ev.text}
+                    </span>
                 </span>
-                ${isHoli ? '<span style="background:#d32f2f; color:white; font-size:10px; padding:2px 6px; border-radius:12px; margin-right:8px;">공휴일 지정됨</span>' : ''}
-                <button onclick="deleteEvent(${events.indexOf(ev)})" style="border:none; background:none; color:${isHoli ? '#d32f2f' : '#888'}; cursor:pointer; font-size:18px;">×</button>
+
+                ${isHoli ? `
+                    <span style="background:#d32f2f; color:white; font-size:10px; padding:3px 7px; border-radius:12px; font-weight:bold; margin-right:10px; white-space:nowrap;">
+                        공휴일 지정됨
+                    </span>` : ''}
+
+                <button onclick="deleteEvent(${originalIndex})" style="border:none; background:none; color:${isHoli ? '#d32f2f' : '#888'}; cursor:pointer; font-size:18px; line-height:1;">×</button>
             </div>`;
     });
 };
