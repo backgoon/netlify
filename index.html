@@ -540,12 +540,21 @@ window.openModal = (d) => {
     updateModalList(); 
 };
 
-const originalCloseModal = window.closeModal;
 window.closeModal = () => {
-    editIndex = null;
-    document.getElementById('event-input').value = '';
-    document.querySelector('.add-btn').innerText = "추가 / 수정하기";
-    originalCloseModal();
+    // 1. 수정 상태 및 입력창 초기화
+    editIndex = null; 
+    const eventInput = document.getElementById('event-input');
+    if (eventInput) eventInput.value = ''; 
+    
+    const addBtn = document.querySelector('.add-btn');
+    if (addBtn) addBtn.innerText = "추가 / 수정하기";
+
+    // 2. 화면에서 모달과 오버레이 숨기기 (핵심 기능)
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+    
+    if (modal) modal.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
 };
 
 window.updateModalList = () => {
