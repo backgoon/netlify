@@ -500,17 +500,25 @@ window.renderCalendar = async function() {
     const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
     const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
     
+    // 1. 공휴일/일정 데이터 가져오기
     const userEvents = data[dateStr] || [];
     const userHoliday = userEvents.find(ev => ev.isHoliday);
     let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
 
-    // [중요] 일요일(0)이거나 공휴일 이름이 있으면 'sun' 클래스 추가
+    // 2. 클래스 설정 (오늘 날짜 체크 추가)
     let dayClass = "day";
-    if (dayOfWeek === 0 || holidayName) {
-        dayClass += " sun";
-    }
+    if (dayOfWeek === 0 || holidayName) dayClass += " sun";
     if (dayOfWeek === 6) dayClass += " sat";
+    
+    // [핵심] 오늘 날짜인지 확인하여 'today' 클래스 추가
+    const now = new Date();
+    if (currentYear === now.getFullYear() && 
+        currentMonth === now.getMonth() && 
+        d === now.getDate()) {
+        dayClass += " today";
+    }
 
+    // 3. HTML 생성
     const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
     const tags = userEvents
         .filter(ev => !ev.isHoliday)
