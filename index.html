@@ -190,53 +190,56 @@
         /* [핵심] 모바일에서만 가로로 칸이 늘어나도록 설정 */
         .grid { 
         display: grid; 
-        /* 1fr(고정비율) 대신 minmax를 사용해 내용에 따라 유연하게 배분 */
-        grid-template-columns: repeat(7, minmax(min-content, 1fr)); 
-        grid-auto-rows: minmax(80px, auto); 
-        gap: 2px; /* 간격을 좁혀서 공간 확보 */
+        /* 최소 너비를 살짝 높여 4글자가 들어갈 공간을 확보 (약 13~14%) */
+        grid-template-columns: repeat(7, minmax(13%, 1fr)); 
+        grid-auto-rows: minmax(90px, auto); 
+        gap: 2px; 
         width: 100%;
-        overflow-x: hidden; /* 가로 스크롤 제거 (한 화면에 다 넣기) */
+        overflow-x: hidden; /* 가로 스크롤 방지 */
     }
 
     .day { 
-        min-width: 0; /* min-width 해제하여 유연하게 축소 허용 */
-        height: auto;
-        padding: 4px;
-        /* 글자가 길면 아래로 떨어지게 하여 칸 너비를 너무 키우지 않음 */
+        min-width: 0; 
+        padding: 3px;
+        /* 기본적으로 줄바꿈을 허용하되 아래 태그 설정으로 4글자까지 버팀 */
         white-space: normal; 
-        word-break: break-all;
     }
 
-    /* 일정 태그: 글자수에 따라 유동적으로 보이게 */
+    /* [수정] 일정 태크: 4글자까지 한 줄 유지 로직 */
     .event-tag {
         display: inline-block;
         width: auto;
-        max-width: 100%;
-        font-size: 9px;
-        padding: 1px 4px;
+        max-content: 100%;
+        /* 글자 크기를 살짝 줄이고 자간을 좁혀 4글자 공간 확보 */
+        font-size: 8.5px; 
+        letter-spacing: -0.5px; 
+        padding: 2px 4px;
         margin: 1px 0;
         line-height: 1.1;
-        text-align: left;
+        text-align: center;
         border-radius: 3px;
-        white-space: normal; /* 글자가 길면 태그 안에서 줄바꿈 */
-        word-wrap: break-word;
+        
+        /* 4글자까지는 절대 줄바꿈 하지 않음 */
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis; /* 4글자가 넘어가면 말줄임표나 줄바꿈 선택 가능 */
     }
 
-    /* 공휴일 라벨: 빨간색 강조 및 자동 줄바꿈 */
+    /* 공휴일 라벨도 4글자까지는 한 줄로 */
     .holiday-label {
-        font-size: 9px;
+        font-size: 8.5px;
+        letter-spacing: -0.5px;
         font-weight: 800;
         color: var(--sun) !important;
+        white-space: nowrap;
         display: block;
-        line-height: 1.1;
         margin-bottom: 2px;
-        white-space: normal;
     }
 
-    /* 날짜 숫자 크기 조절 */
+    /* 날짜 숫자 크기 */
     .day .date-num {
-        font-size: 11px;
-        margin-bottom: 2px;
+        font-size: 10px;
+        margin-bottom: 1px;
     }
 
     /* 메모장 모바일 설정 (기존 유지) */
