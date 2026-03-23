@@ -150,7 +150,7 @@
     }
 
     /* 일정 태그 2x2 정렬 유지 */
-    .event-tag {
+    /* .event-tag {
     display: block; /* 한 줄에 하나씩 쌓이게 변경 */
     width: 95%;
     margin: 2px auto;
@@ -164,11 +164,35 @@
     word-break: break-all; /* 영문/숫자 끊어서 줄바꿈 */
     white-space: normal;   /* 공백 기준 자동 줄바꿈 */
     text-align: left;
+} */
+.event-tag {
+    display: inline-block; /* [핵심] 글자 길이에 맞게 너비 조절 */
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #333;
+    line-height: 1.4;
+    
+    /* 너무 길어서 달력을 완전히 깨뜨리는 것 방지 */
+    max-width: 95%; 
+    word-break: break-all; /* 아주 긴 단어는 줄바꿈 */
+    white-space: normal;   /* 자연스러운 줄바꿈 허용 */
+    
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    cursor: pointer;
 }
 }
 
     /* 공휴일 설정 */
-    .holiday-label {
+.holiday-label {
+    display: inline-block;
+    font-size: 11px;
+    color: #e53935;
+    font-weight: 800;
+    margin: 2px 0;
+    width: 100%; /* 공휴일 이름은 보통 한 줄을 다 쓰는게 보기 좋습니다 */
+}
+    /* .holiday-label {
     font-size: 11px;
     color: #e53935;
     font-weight: 800;
@@ -177,13 +201,26 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap; /* 휴일 이름은 한 줄로 */
-}
-.event-container {
+} */
+
+        
+/* .event-container {
     display: flex;
     flex-direction: column; /* 세로로 나열 */
     gap: 1px;
     width: 100%;
+} */
+
+.event-container {
+    display: flex;
+    flex-wrap: wrap; /* [핵심] 글자가 길면 다음 줄로, 짧으면 옆으로 붙음 */
+    gap: 3px;
+    width: 100%;
+    padding: 2px;
+    justify-content: flex-start; /* 왼쪽 정렬 */
 }
+
+
 /* 일요일 및 공휴일 숫자 빨간색 */
 .day.sun .date-num { color: #e53935 !important; }
         
@@ -442,17 +479,27 @@ window.renderCalendar = async function() {
 
         // [수정 포인트] 공휴일로 지정된 텍스트는 아래 태그 목록(tags)에서 제외합니다.
         const tags = userEvents
-            .filter(ev => !ev.isHoliday) // 공휴일이 아닌 일반 일정만 필터링
+            .filter(ev => !ev.isHoliday)
             .map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`)
             .join('');
-        
-        const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
         
         grid.innerHTML += `
             <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
                 <span class="date-num">${d}</span>
                 ${holidayHtml}
                 <div class="event-container">${tags}</div> </div>`;
+        // const tags = userEvents
+        //     .filter(ev => !ev.isHoliday) // 공휴일이 아닌 일반 일정만 필터링
+        //     .map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`)
+        //     .join('');
+        
+        // const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+        
+        // grid.innerHTML += `
+        //     <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
+        //         <span class="date-num">${d}</span>
+        //         ${holidayHtml}
+        //         <div class="event-container">${tags}</div> </div>`;
     }
 };
 
