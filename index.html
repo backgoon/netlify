@@ -151,29 +151,39 @@
 
     /* 일정 태그 2x2 정렬 유지 */
     .event-tag {
-        font-size: 8.5px;
-        width: 22px;
-        display: inline-block;
-        white-space: normal;
-        word-break: break-all;
-        line-height: 1.0;
-        padding: 1px;
-        margin: 1px;
-        text-align: center;
-        border-radius: 2px;
-    }
+    display: block; /* 한 줄에 하나씩 쌓이게 변경 */
+    width: 95%;
+    margin: 2px auto;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #333;
+    line-height: 1.3;
+    
+    /* [핵심] 줄바꿈 설정 */
+    word-break: break-all; /* 영문/숫자 끊어서 줄바꿈 */
+    white-space: normal;   /* 공백 기준 자동 줄바꿈 */
+    text-align: left;
+}
 }
 
     /* 공휴일 설정 */
     .holiday-label {
-        font-size: 10px;
-        color: #e53935; /* 빨간색 */
-        font-weight: bold;
-        margin-bottom: 2px;
-        display: block;
-        background: transparent !important; /* 배경색 절대 없음 */
-    }
-
+    font-size: 11px;
+    color: #e53935;
+    font-weight: 800;
+    display: block;
+    margin: 2px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* 휴일 이름은 한 줄로 */
+}
+.event-container {
+    display: flex;
+    flex-direction: column; /* 세로로 나열 */
+    gap: 1px;
+    width: 100%;
+}
 /* 일요일 및 공휴일 숫자 빨간색 */
 .day.sun .date-num { color: #e53935 !important; }
         
@@ -312,33 +322,28 @@ window.renderCalendar = async function() {
         const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
         const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
         
-        // 1. API 공휴일 확인
-        let holidayName = holidays[dateStr]; 
-        
-        // 2. 사용자가 수동 등록한 공휴일이 있는지 확인
         const userEvents = data[dateStr] || [];
-        const userHoliday = userEvents.find(ev => ev.isHoliday);
-        if (userHoliday) {
-            holidayName = userHoliday.text; // 사용자 입력 텍스트를 휴일 이름으로 사용
-        }
+        const userHoliday = userEvents.find(ev => ev.isHoliday); // 수동 등록 공휴일 찾기
+        
+        let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
 
         let dayClass = "day";
-        // 일요일이거나 (API 혹은 사용자 등록) 공휴일이면 빨간색
         if (dayOfWeek === 0 || holidayName) dayClass += " sun";
         if (dayOfWeek === 6) dayClass += " sat";
-        // if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
-        //     dayClass += " today";
-        // }
 
+        // [수정 포인트] 공휴일로 지정된 텍스트는 아래 태그 목록(tags)에서 제외합니다.
+        const tags = userEvents
+            .filter(ev => !ev.isHoliday) // 공휴일이 아닌 일반 일정만 필터링
+            .map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`)
+            .join('');
+        
         const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
-        const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
         
         grid.innerHTML += `
             <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
                 <span class="date-num">${d}</span>
                 ${holidayHtml}
-                <div>${tags}</div>
-            </div>`;
+                <div class="event-container">${tags}</div> </div>`;
     }
 };
 
