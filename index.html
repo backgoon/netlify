@@ -310,11 +310,20 @@ window.renderCalendar = async function() {
 
     for(let d=1; d<=lastDate; d++) {
         const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-        const dateObj = new Date(currentYear, currentMonth, d);
-        const dayOfWeek = dateObj.getDay();
-        const holidayName = holidays[dateStr];
+        const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
+        
+        // 1. API 공휴일 확인
+        let holidayName = holidays[dateStr]; 
+        
+        // 2. 사용자가 수동 등록한 공휴일이 있는지 확인
+        const userEvents = data[dateStr] || [];
+        const userHoliday = userEvents.find(ev => ev.isHoliday);
+        if (userHoliday) {
+            holidayName = userHoliday.text; // 사용자 입력 텍스트를 휴일 이름으로 사용
+        }
 
         let dayClass = "day";
+        // 일요일이거나 (API 혹은 사용자 등록) 공휴일이면 빨간색
         if (dayOfWeek === 0 || holidayName) dayClass += " sun";
         if (dayOfWeek === 6) dayClass += " sat";
         if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
