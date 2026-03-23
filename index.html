@@ -220,212 +220,191 @@
         <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ⚠️ 이 부분을 본인의 Firebase 설정값으로 꼭 채워주세요!
-        const firebaseConfig = {
-          apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
-          authDomain: "backgoon-811dc.firebaseapp.com",
-          projectId: "backgoon-811dc",
-          storageBucket: "backgoon-811dc.firebasestorage.app",
-          messagingSenderId: "275172993103",
-          appId: "1:275172993103:web:e001d6487f8429d736a23a"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
+    authDomain: "backgoon-811dc.firebaseapp.com",
+    projectId: "backgoon-811dc",
+    storageBucket: "backgoon-811dc.firebasestorage.app",
+    messagingSenderId: "275172993103",
+    appId: "1:275172993103:web:e001d6487f8429d736a23a"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-        let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
-        let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer;
+let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
+let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer;
 
-        const memoArea = document.getElementById('memo-area');
-        const memoContainer = document.querySelector('.memo-container');
-        const overlay = document.getElementById('overlay');
+const memoArea = document.getElementById('memo-area');
+const memoContainer = document.querySelector('.memo-container');
+const overlay = document.getElementById('overlay');
 
-        // 실시간 감시
-        onSnapshot(doc(db, "planner", "data"), (snap) => { if (snap.exists()) { data = snap.data(); renderCalendar(); } });
-        onSnapshot(doc(db, "planner", "memo"), (snap) => {
-            if (snap.exists() && document.activeElement !== memoArea) { memoArea.value = snap.data().text; }
+// 실시간 감시 (async 처리 포함)
+onSnapshot(doc(db, "planner", "data"), async (snap) => { 
+    if (snap.exists()) { 
+        data = snap.data(); 
+        await renderCalendar(); 
+    } 
+});
+onSnapshot(doc(db, "planner", "memo"), (snap) => {
+    if (snap.exists() && document.activeElement !== memoArea) { 
+        memoArea.value = snap.data().text; 
+    }
+});
+
+// 공휴일 데이터 캐싱
+let cachedHolidays = {};
+
+async function fetchHolidays(year) {
+    if (cachedHolidays[year]) return cachedHolidays[year];
+    try {
+        const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
+        const holidayData = await response.json();
+        const holidayMap = {};
+        holidayData.forEach(h => {
+            const date = new Date(h.date);
+            const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            holidayMap[key] = h.localName;
         });
+        cachedHolidays[year] = holidayMap;
+        return holidayMap;
+    } catch (e) {
+        console.error("공휴일 로드 실패:", e);
+        return {};
+    }
+}
 
-        // 공휴일 지
-        let cachedHolidays = {}; // 연도별 공휴일을 저장할 변수
+// 달력 그리기 (중복 제거 및 async 통합)
+window.renderCalendar = async function() {
+    const grid = document.getElementById('calendar-grid');
+    grid.innerHTML = '';
+    document.getElementById('display-year').innerText = currentYear;
+    document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
 
-        async function fetchHolidays(year) {
-            if (cachedHolidays[year]) return cachedHolidays[year]; // 이미 가져온 연도는 재사용
-        
-            try {
-                // 한국(KR) 공휴일 API 호출 (Nager.Date API 사용)
-                const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
-                const data = await response.json();
-                
-                const holidayMap = {};
-                data.forEach(h => {
-                    // API 날짜 형식(2026-01-01)을 우리 포맷(2026-1-1)으로 변환하여 저장
-                    const date = new Date(h.date);
-                    const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-                    holidayMap[key] = h.localName; // '광복절', '어린이날' 등 한국어 이름 저장
-                });
-                
-                cachedHolidays[year] = holidayMap;
-                return holidayMap;
-            } catch (e) {
-                console.error("공휴일 로드 실패:", e);
-                return {};
-            }
+    const holidays = await fetchHolidays(currentYear);
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
+    for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
+
+    for(let d=1; d<=lastDate; d++) {
+        const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
+        const dateObj = new Date(currentYear, currentMonth, d);
+        const dayOfWeek = dateObj.getDay();
+        const holidayName = holidays[dateStr];
+
+        let dayClass = "day";
+        if (dayOfWeek === 0 || holidayName) dayClass += " sun";
+        if (dayOfWeek === 6) dayClass += " sat";
+        if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
+            dayClass += " today";
         }
+
+        const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+        const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
         
-        // renderCalendar 함수를 async로 변경해야 합니다!
-        window.renderCalendar = async function() {
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-            document.getElementById('display-year').innerText = currentYear;
-            document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
-        
-            // 현재 연도의 공휴일 데이터를 가져옵니다.
-            const holidays = await fetchHolidays(currentYear);
-        
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-        
-            // 요일 헤더 생성 (기존과 동일)
-            ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
-        
-            for(let d=1; d<=lastDate; d++) {
-                const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-                const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
-                const holidayName = holidays[dateStr]; // 자동 호출된 공휴일 확인
-        
-                let dayClass = "day";
-                // 일요일이거나 공휴일이면 빨간색 숫자 적용
-                if (dayOfWeek === 0 || holidayName) dayClass += " sun";
-                if (dayOfWeek === 6) dayClass += " sat";
-        
-                // 배경색 없는 공휴일 텍스트
-                const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
-                const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
-                
-                grid.innerHTML += `
-                    <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
-                        <span class="date-num">${d}</span>
-                        ${holidayHtml}
-                        <div>${tags}</div>
-                    </div>`;
-            }
+        grid.innerHTML += `
+            <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
+                <span class="date-num">${d}</span>
+                ${holidayHtml}
+                <div>${tags}</div>
+            </div>`;
+    }
+};
+
+// 메모장 제어 로직
+memoArea.addEventListener('input', (e) => {
+    clearTimeout(memoTimer);
+    memoTimer = setTimeout(async () => { 
+        await setDoc(doc(db, "planner", "memo"), { text: e.target.value }); 
+    }, 800);
+});
+
+memoContainer.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768) {
+        if (!memoContainer.classList.contains('active')) {
+            memoContainer.classList.add('active');
+            overlay.style.display = 'block';
+            memoArea.focus();
         }
-        
-        // 메모장 제어
+    } else {
+        memoArea.focus();
+    }
+});
 
-        memoArea.addEventListener('input', (e) => {
-            clearTimeout(memoTimer);
-            memoTimer = setTimeout(async () => { await setDoc(doc(db, "planner", "memo"), { text: e.target.value }); }, 800);
-        });
+overlay.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+        memoContainer.classList.remove('active');
+    }
+    overlay.style.display = 'none';
+    closeModal();
+});
 
-        memoContainer.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
-                if (!memoContainer.classList.contains('active')) {
-                    memoContainer.classList.add('active');
-                    overlay.style.display = 'block';
-                    memoArea.focus();
-                }
-            } else {
-                memoArea.focus();
-            }
-        });
-        
-        // 2. 오버레이(바깥 어두운 부분) 클릭 시 메모장과 모달 닫기
-        overlay.addEventListener('click', () => {
-            // 모바일 메모장 닫기
-            if (window.innerWidth <= 768) {
-                memoContainer.classList.remove('active');
-            }
-            overlay.style.display = 'none';
-            closeModal(); // 열려있던 일정 수정창도 닫기
-        });
-    
-    // 3. 메모장 안쪽 클릭 시 닫힘 방지 (매우 중요!)
-    memoArea.addEventListener('click', (e) => {
-        e.stopPropagation(); // 클릭 이벤트가 바깥으로 퍼지는 걸 막아줍니다.
+memoArea.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+// 달력 조작 함수들 (await 추가)
+window.changeMonth = async (v) => { 
+    currentMonth += v; 
+    if(currentMonth < 0){ currentMonth = 11; currentYear--; }
+    else if(currentMonth > 11){ currentMonth = 0; currentYear++; } 
+    await renderCalendar(); 
+};
+
+window.goToToday = async () => { 
+    currentYear = new Date().getFullYear(); 
+    currentMonth = new Date().getMonth(); 
+    await renderCalendar(); 
+};
+
+window.addEvent = async function() {
+    const input = document.getElementById('event-input');
+    if(!input.value) return;
+    if(!data[selectedDate]) data[selectedDate] = [];
+    data[selectedDate].push({ text: input.value, color: selectedColor });
+    await setDoc(doc(db, "planner", "data"), data);
+    input.value = '';
+    updateModalList();
+    await renderCalendar();
+    closeModal();
+};
+
+window.deleteEvent = async (i) => {
+    data[selectedDate].splice(i, 1);
+    await setDoc(doc(db, "planner", "data"), data);
+    updateModalList();
+    await renderCalendar();
+};
+
+window.openModal = (d) => { 
+    selectedDate = d; 
+    const dateParts = d.split('-');
+    document.getElementById('modal-date-display').innerText = `${dateParts[1]}월 ${dateParts[2]}일`;
+    document.getElementById('modal').style.display='block'; 
+    document.getElementById('overlay').style.display='block'; 
+    updateModalList(); 
+};
+
+window.closeModal = () => { 
+    document.getElementById('modal').style.display='none'; 
+    document.getElementById('overlay').style.display='none'; 
+};
+
+window.updateModalList = () => {
+    const div = document.getElementById('modal-list'); 
+    div.innerHTML = '';
+    (data[selectedDate] || []).forEach((ev, i) => {
+        div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
     });
-            
+};
 
-        // 나머지 함수 정의
-        window.renderCalendar = function() {
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-            document.getElementById('display-year').innerText = currentYear;
-            document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
-            
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
-            
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
-            
-            for(let d=1; d<=lastDate; d++) {
-                const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-                const dayOfWeek = new Date(currentYear, currentMonth, d).getDay(); // 0:일, 6:토
-                
-                let dayClass = "day";
-                if (dayOfWeek === 0) dayClass += " sun";
-                if (dayOfWeek === 6) dayClass += " sat";
-                if (currentYear === new Date().getFullYear() && currentMonth === new Date().getMonth() && d === new Date().getDate()) {
-                    dayClass += " today";
-                }
-        
-                const tags = (data[dateStr] || []).map(ev => `<span class="event-tag" style="background:${ev.color};">${ev.text}</span>`).join('');
-                
-                grid.innerHTML += `
-                    <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
-                        <span class="date-num">${d}</span>
-                        <div>${tags}</div>
-                    </div>`;
-            }
-        }
-
-        window.addEvent = async function() {
-            const input = document.getElementById('event-input');
-            if(!input.value) return;
-            if(!data[selectedDate]) data[selectedDate] = [];
-            data[selectedDate].push({ text: input.value, color: selectedColor });
-            await setDoc(doc(db, "planner", "data"), data);
-            input.value = '';
-            updateModalList();
-            renderCalendar();
-            closeModal();
-        }
-
-        window.changeMonth = (v) => { currentMonth += v; if(currentMonth<0){currentMonth=11;currentYear--;}else if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
-        window.goToToday = () => { currentYear = new Date().getFullYear(); currentMonth = new Date().getMonth(); renderCalendar(); };
-        window.openModal = (d) => { 
-            selectedDate = d; 
-            const dateParts = d.split('-');
-            document.getElementById('modal-date-display').innerText = `${dateParts[1]}월 ${dateParts[2]}일`;
-            document.getElementById('modal').style.display='block'; 
-            document.getElementById('overlay').style.display='block'; 
-            updateModalList(); 
-        };
-        window.closeModal = () => { document.getElementById('modal').style.display='none'; document.getElementById('overlay').style.display='none'; };
-        
-        window.updateModalList = () => {
-            const div = document.getElementById('modal-list'); div.innerHTML = '';
-            (data[selectedDate] || []).forEach((ev, i) => {
-                div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
-            });
-        }
-
-        window.deleteEvent = async (i) => {
-            data[selectedDate].splice(i, 1);
-            await setDoc(doc(db, "planner", "data"), data);
-            updateModalList();
-            renderCalendar();
-        };
-
-        renderCalendar();
+// 초기 실행
+renderCalendar();
     </script>
 </body>
 </html>
