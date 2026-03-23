@@ -210,7 +210,7 @@
     </div>
 
     <div class="overlay" id="overlay"></div>
-    <div class="modal" id="modal">
+    <!-- <div class="modal" id="modal">
         <div style="margin-bottom: 15px;">
             <span id="modal-date-display" style="color: var(--pink); font-weight: bold; font-size: 1.1em;"></span>
             <span style="color: #666;"> 일정 추가</span>
@@ -218,7 +218,23 @@
         <input type="text" id="event-input" placeholder="일정을 입력하세요" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;">
         <button class="add-btn" onclick="addEvent()">추가하기</button>
         <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
+    </div> -->
+
+    <div id="modal" class="modal">
+    <h3 id="modal-date-display"></h3>
+    <input type="text" id="event-input" placeholder="일정을 입력하세요">
+    
+    <div style="margin: 10px 0; font-size: 13px; display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" id="is-holiday">
+        <label for="is-holiday" style="color: var(--sun); font-weight: bold;">공휴일(빨간날)로 지정</label>
     </div>
+
+    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+        </div>
+    <button class="add-btn" onclick="addEvent()">추가하기</button>
+    <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
+    <button onclick="closeModal()" style="width:100%; margin-top:10px; border:none; background:#eee; padding:8px; border-radius:10px; cursor:pointer;">닫기</button>
+</div>
 
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
