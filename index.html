@@ -379,13 +379,35 @@ window.goToToday = async () => {
     await renderCalendar(); 
 };
 
+// window.addEvent = async function() {
+//     const input = document.getElementById('event-input');
+//     if(!input.value) return;
+//     if(!data[selectedDate]) data[selectedDate] = [];
+//     data[selectedDate].push({ text: input.value, color: selectedColor });
+//     await setDoc(doc(db, "planner", "data"), data);
+//     input.value = '';
+//     updateModalList();
+//     await renderCalendar();
+//     closeModal();
+// };
 window.addEvent = async function() {
     const input = document.getElementById('event-input');
+    const isHoliday = document.getElementById('is-holiday').checked; // 체크박스 상태 확인
+    
     if(!input.value) return;
     if(!data[selectedDate]) data[selectedDate] = [];
-    data[selectedDate].push({ text: input.value, color: selectedColor });
+    
+    // 데이터 구조에 isHoliday 추가
+    data[selectedDate].push({ 
+        text: input.value, 
+        color: selectedColor,
+        isHoliday: isHoliday 
+    });
+    
     await setDoc(doc(db, "planner", "data"), data);
+    
     input.value = '';
+    document.getElementById('is-holiday').checked = false; // 초기화
     updateModalList();
     await renderCalendar();
     closeModal();
