@@ -231,25 +231,32 @@
     </div> -->
 
 <div id="modal" class="modal">
-    <h3 id="modal-date-display" style="text-align: center; color: var(--blue);"></h3>
+    <h3 id="modal-date-display" style="text-align: center; color: #333; margin-bottom: 20px;"></h3>
     
-    <div style="font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold;">📅 저장된 일정 (클릭 시 수정)</div>
-    <div id="modal-list" style="margin-bottom:15px; max-height:200px; overflow-y:auto; border: 1px solid #eee; padding: 5px; border-radius: 8px;">
+    <div style="font-size: 13px; color: #555; margin-bottom: 8px; font-weight: bold;">📅 등록된 일정</div>
+    <div id="modal-list" style="margin-bottom:20px; max-height:180px; overflow-y:auto; border: 1px solid #ddd; padding: 10px; border-radius: 12px; background: #fafafa;">
         </div>
 
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-        <input type="text" id="event-input" placeholder="일정을 입력하세요" 
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="event-input" placeholder="일정 내용을 입력하세요" 
                style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 14px;">
         
-        <div style="display: flex; align-items: center; gap: 5px; padding-left: 5px;">
-            <input type="checkbox" id="is-holiday">
-            <label for="is-holiday" style="color: var(--sun); font-weight: bold; font-size: 13px;">공휴일(빨간날)로 지정</label>
+        <div style="display: flex; gap: 8px; justify-content: center; margin: 5px 0;">
+            <div class="color-btn" onclick="selectedColor='#ffdce0'" style="background:#ffdce0; width:25px; height:25px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,0.2);"></div>
+            <div class="color-btn" onclick="selectedColor='#e2f0cb'" style="background:#e2f0cb; width:25px; height:25px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,0.2);"></div>
+            <div class="color-btn" onclick="selectedColor='#c7ceea'" style="background:#c7ceea; width:25px; height:25px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,0.2);"></div>
+            <div class="color-btn" onclick="selectedColor='#f7d1ba'" style="background:#f7d1ba; width:25px; height:25px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 3px rgba(0,0,0,0.2);"></div>
         </div>
 
-        <button class="add-btn" onclick="addEvent()" style="width: 100%; cursor: pointer;">추가 / 수정하기</button>
+        <div style="display: flex; align-items: center; gap: 8px; background: #fff4f4; padding: 8px; border-radius: 8px;">
+            <input type="checkbox" id="is-holiday" style="width:18px; height:18px; cursor:pointer;">
+            <label for="is-holiday" style="color: #e53935; font-weight: bold; font-size: 13px; cursor:pointer;">이 일정을 공휴일(빨간날)로 지정</label>
+        </div>
+
+        <button class="add-btn" onclick="addEvent()" style="width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">추가 / 수정 저장</button>
     </div>
 
-    <button onclick="closeModal()" style="width:100%; margin-top:10px; border:none; background:#f5f5f5; padding:8px; border-radius:10px; cursor:pointer; color: #888;">닫기</button>
+    <button onclick="closeModal()" style="width:100%; margin-top:15px; border:none; background:transparent; color: #999; cursor:pointer; font-size: 13px;">취소하고 닫기</button>
 </div>
 
     <script type="module">
@@ -284,36 +291,44 @@ window.updateModalList = () => {
         return;
     }
 
-    // 1. 공휴일 먼저 표시
+    let holidayHtml = "";
+    let eventHtml = "";
+
     events.forEach((ev, i) => {
         if (ev.isHoliday) {
-            div.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#fff0f0; padding:8px; margin-bottom:5px; border-radius:5px; border-left:4px solid red;">
-                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1; color:red; font-weight:bold;">[공휴일] ${ev.text}</span>
-                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">×</button>
+            // 공휴일 스타일 (빨간색 라벨 보강)
+            holidayHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#ffebee; padding:10px; margin-bottom:8px; border-radius:8px; border:1px solid #ffcdd2;">
+                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1; color:#d32f2f; font-weight:bold; font-size:13px;">
+                        <span style="background:#d32f2f; color:#white; padding:2px 5px; border-radius:4px; font-size:10px; margin-right:5px; color:white;">공휴일</span>${ev.text}
+                    </span>
+                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:#d32f2f; cursor:pointer; font-weight:bold; font-size:16px;">×</button>
+                </div>`;
+        } else {
+            // 일반 일정 스타일
+            eventHtml += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:${ev.color || '#eee'}; padding:10px; margin-bottom:5px; border-radius:8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1; font-size:13px; color:#333;">
+                        <span style="color:#888; margin-right:5px;">•</span>${ev.text}
+                    </span>
+                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:#888; cursor:pointer; font-size:16px;">×</button>
                 </div>`;
         }
     });
 
-    // 2. 일반 일정 표시
-    events.forEach((ev, i) => {
-        if (!ev.isHoliday) {
-            div.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:${ev.color}; padding:8px; margin-bottom:5px; border-radius:5px;">
-                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1;">${ev.text}</span>
-                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:#666; cursor:pointer;">×</button>
-                </div>`;
-        }
-    });
+    // 화면에 뿌려줄 때 공휴일을 위로, 일정을 아래로 확실히 구분
+    div.innerHTML = (holidayHtml ? `<div style="margin-bottom:15px;">${holidayHtml}</div>` : "") + eventHtml;
 };
 
 // 수정을 위해 입력창으로 데이터 불러오기
 window.prepareEdit = (index) => {
     const ev = data[selectedDate][index];
     document.getElementById('event-input').value = ev.text;
-    document.getElementById('is-holiday').checked = ev.isHoliday;
-    editIndex = index; // 현재 수정 중인 번호 저장
+    document.getElementById('is-holiday').checked = ev.isHoliday || false;
+    // 전역 변수 editIndex에 인덱스 저장 (상단에 let editIndex = null; 선언 확인 필요)
+    editIndex = index; 
     document.querySelector('.add-btn').innerText = "내용 수정 완료";
+    document.getElementById('event-input').focus();
 };
 
 // 추가 및 수정 저장 로시
@@ -488,42 +503,40 @@ window.goToToday = async () => {
 // [통합 버전] 추가와 수정을 한 번에 처리하는 함수
 window.addEvent = async function() {
     const input = document.getElementById('event-input');
-    const isHoliday = document.getElementById('is-holiday').checked;
+    const isHolidayCheck = document.getElementById('is-holiday').checked;
     
-    if(!input.value) return; // 내용 없으면 종료
+    if(!input.value) return;
     if(!data[selectedDate]) data[selectedDate] = [];
     
-    // 저장할 객체 생성
+    // [핵심] 공휴일 단일화: 새로 추가/수정하려는 게 '공휴일'이라면 기존의 공휴일 설정을 모두 해제
+    if (isHolidayCheck) {
+        data[selectedDate].forEach(ev => ev.isHoliday = false);
+    }
+
     const newEvent = { 
         text: input.value, 
         color: selectedColor, 
-        isHoliday: isHoliday 
+        isHoliday: isHolidayCheck 
     };
 
-    // editIndex가 null이 아니면 '수정 모드', null이면 '새로 추가 모드'
     if (editIndex !== null) {
-        // 1. 수정: 기존 위치의 데이터를 새 데이터로 덮어쓰기
         data[selectedDate][editIndex] = newEvent;
-        editIndex = null; // 수정 완료 후 다시 빈 값으로 초기화
-        document.querySelector('.add-btn').innerText = "추가 / 수정하기";
+        editIndex = null;
     } else {
-        // 2. 추가: 배열 맨 뒤에 새 데이터 넣기
         data[selectedDate].push(newEvent);
     }
     
-    // Firebase에 최종 데이터 저장
     await setDoc(doc(db, "planner", "data"), data);
     
-    // 입력창 초기화 및 화면 갱신
+    // 초기화 및 닫기
     input.value = '';
     document.getElementById('is-holiday').checked = false;
+    document.querySelector('.add-btn').innerText = "추가 / 수정 저장";
     updateModalList();
     await renderCalendar();
-    
-    // 수정 모드였을 때는 창을 닫아주는 게 편합니다. (선택 사항)
-    closeModal(); 
+    closeModal();
 };
-
+        
 window.deleteEvent = async (i) => {
     data[selectedDate].splice(i, 1);
     await setDoc(doc(db, "planner", "data"), data);
