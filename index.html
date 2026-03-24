@@ -113,9 +113,16 @@
     let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
     let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer, editIndex = null, cachedHolidays = {};
 
-    onSnapshot(doc(db, "planner", "data"), (snap) => { if (snap.exists()) { data = snap.data(); renderCalendar(); } });
-    onSnapshot(doc(db, "planner", "memo"), (snap) => { if (snap.exists() && document.activeElement !== memoArea) { memoArea.value = snap.data().text || ""; } });
+    onSnapshot(doc(db, "planner", "data"), (snap) => { 
+        if (snap.exists()) { data = snap.data(); renderCalendar(); } 
+    });
 
+    onSnapshot(doc(db, "planner", "memo"), (snap) => {
+        const memoArea = document.getElementById('memo-area'); // 여기서 직접 찾기
+        if (snap.exists() && memoArea && document.activeElement !== memoArea) { 
+            memoArea.value = snap.data().text || ""; 
+        }
+    });
     async function fetchHolidays(year) {
         if (cachedHolidays[year]) return cachedHolidays[year];
         try {
