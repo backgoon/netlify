@@ -368,396 +368,197 @@
     <button onclick="closeModal()" style="width:100%; margin-top:15px; border:none; background:transparent; color: #999; cursor:pointer; font-size: 13px;">취소하고 닫기</button>
 </div>
 
-    <script type="module">
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
-    authDomain: "backgoon-811dc.firebaseapp.com",
-    projectId: "backgoon-811dc",
-    storageBucket: "backgoon-811dc.firebasestorage.app",
-    messagingSenderId: "275172993103",
-    appId: "1:275172993103:web:e001d6487f8429d736a23a"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
+        authDomain: "backgoon-811dc.firebaseapp.com",
+        projectId: "backgoon-811dc",
+        storageBucket: "backgoon-811dc.firebasestorage.app",
+        messagingSenderId: "275172993103",
+        appId: "1:275172993103:web:e001d6487f8429d736a23a"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
-let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer;
-        
-let editIndex = null; // 수정을 위한 인덱스 저장 변수
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let data = {}, selectedDate = "", selectedColor = "#ffdce0", memoTimer, editIndex = null;
 
-// 모달 목록 업데이트 (공휴일/일정 분리 및 수정 연결)
-window.updateModalList = () => {
-    const div = document.getElementById('modal-list');
-    div.innerHTML = '';
-    const events = data[selectedDate] || [];
+    const memoArea = document.getElementById('memo-area');
+    const memoContainer = document.querySelector('.memo-container');
+    const overlay = document.getElementById('overlay');
 
-    if (events.length === 0) {
-        div.innerHTML = '<div style="text-align:center; color:#ccc; padding:10px;">등록된 일정이 없습니다.</div>';
-        return;
-    }
-
-    // [핵심] 공휴일을 가장 위로 올리기 위해 정렬 (isHoliday가 true인 것을 우선)
-    const sortedEvents = [...events].sort((a, b) => {
-        if (a.isHoliday === b.isHoliday) return 0;
-        return a.isHoliday ? -1 : 1;
-    });
-
-    sortedEvents.forEach((ev) => {
-        // 원래 배열(data[selectedDate])에서의 실제 인덱스를 찾음 (수정/삭제용)
-        const originalIndex = events.indexOf(ev);
-        const isHoli = ev.isHoliday;
-
-        div.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; 
-                        background:${isHoli ? '#fff5f5' : (ev.color || '#eee')}; 
-                        padding:10px; margin-bottom:8px; border-radius:10px; 
-                        border:${isHoli ? '2px solid #ffcdd2' : '1px solid #eee'}; 
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                
-                <span onclick="prepareEdit(${originalIndex})" style="cursor:pointer; flex:1; font-size:13px; display:flex; align-items:center; gap:5px;">
-                    ${isHoli ? '<b style="color:#d32f2f;">🚩</b>' : '<span style="color:#888;">•</span>'}
-                    <span style="font-weight:${isHoli ? 'bold' : 'normal'}; color:${isHoli ? '#d32f2f' : '#333'};">
-                        ${ev.text}
-                    </span>
-                </span>
-
-                ${isHoli ? `
-                    <span style="background:#d32f2f; color:white; font-size:10px; padding:3px 7px; border-radius:12px; font-weight:bold; margin-right:10px; white-space:nowrap;">
-                        공휴일 지정됨
-                    </span>` : ''}
-
-                <button onclick="deleteEvent(${originalIndex})" style="border:none; background:none; color:${isHoli ? '#d32f2f' : '#888'}; cursor:pointer; font-size:18px; line-height:1;">×</button>
-            </div>`;
-    });
-};
-
-window.selectColor = (color, element) => {
-    selectedColor = color;
-    // 선택된 버튼 표시 (옵션)
-    document.querySelectorAll('.color-btn').forEach(btn => btn.style.transform = 'scale(1)');
-    element.style.transform = 'scale(1.2)';
-    element.style.border = '2px solid #333';
-};
-// 수정을 위해 입력창으로 데이터 불러오기
-window.prepareEdit = (index) => {
-    const ev = data[selectedDate][index];
-    document.getElementById('event-input').value = ev.text;
-    document.getElementById('is-holiday').checked = ev.isHoliday || false;
-    // 전역 변수 editIndex에 인덱스 저장 (상단에 let editIndex = null; 선언 확인 필요)
-    editIndex = index; 
-    document.querySelector('.add-btn').innerText = "내용 수정 완료";
-    document.getElementById('event-input').focus();
-};
-
-// 추가 및 수정 저장 로시
-// window.addEvent = async function() {
-//     const input = document.getElementById('event-input');
-//     const isHoliday = document.getElementById('is-holiday').checked;
-    
-//     if(!input.value) return;
-//     if(!data[selectedDate]) data[selectedDate] = [];
-    
-//     const newEvent = { text: input.value, color: selectedColor, isHoliday: isHoliday };
-
-//     if (editIndex !== null) {
-//         // 수정 모드
-//         data[selectedDate][editIndex] = newEvent;
-//         editIndex = null;
-//         document.querySelector('.add-btn').innerText = "추가 / 수정하기";
-//     } else {
-//         // 새 일정 추가 모드
-//         data[selectedDate].push(newEvent);
-//     }
-    
-//     await setDoc(doc(db, "planner", "data"), data);
-    
-//     input.value = '';
-//     document.getElementById('is-holiday').checked = false;
-//     updateModalList();
-//     await renderCalendar();
-// };
-        
-
-        
-const memoArea = document.getElementById('memo-area');
-const memoContainer = document.querySelector('.memo-container');
-const overlay = document.getElementById('overlay');
-
-// 실시간 감시 (async 처리 포함)
-onSnapshot(doc(db, "planner", "data"), async (snap) => { 
-    if (snap.exists()) { 
-        data = snap.data(); 
-        await renderCalendar(); 
-    } 
-});
-onSnapshot(doc(db, "planner", "memo"), (snap) => {
-    if (snap.exists() && document.activeElement !== memoArea) { 
-        memoArea.value = snap.data().text; 
-    }
-});
-
-// 공휴일 데이터 캐싱
-let cachedHolidays = {};
-
-async function fetchHolidays(year) {
-    if (cachedHolidays[year]) return cachedHolidays[year];
-    try {
-        const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
-        const holidayData = await response.json();
-        const holidayMap = {};
-        holidayData.forEach(h => {
-            const date = new Date(h.date);
-            const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-            holidayMap[key] = h.localName;
-        });
-        cachedHolidays[year] = holidayMap;
-        return holidayMap;
-    } catch (e) {
-        console.error("공휴일 로드 실패:", e);
-        return {};
-    }
-}
-
-
-
-        // 달력 조작 함수들 (await 추가)
-    window.changeMonth = function(offset) {
-        currentMonth += offset;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        } else if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
+    // [1] 실시간 데이터 감시 (onSnapshot)
+    onSnapshot(doc(db, "planner", "data"), (snap) => {
+        if (snap.exists()) {
+            data = snap.data();
+            renderCalendar(); // 데이터 바뀔 때만 호출
         }
-        window.renderCalendar(); // 달력 다시 그리기
-    };
+    });
 
-    window.goToday = function() {
-        const now = new Date();
-        currentYear = now.getFullYear();
-        currentMonth = now.getMonth();
-        window.renderCalendar();
-    };
+    onSnapshot(doc(db, "planner", "memo"), (snap) => {
+        if (snap.exists() && document.activeElement !== memoArea) {
+            memoArea.value = snap.data().text || "";
+        }
+    });
 
-window.toggleMemo = async function() {
-        const memoContainer = document.querySelector('.memo-container');
-        const memoArea = document.getElementById('memo-area');
-        const overlay = document.querySelector('.overlay');
-        const isMobile = window.innerWidth <= 768;
-
-        if (isMobile && memoContainer.classList.contains('active')) return;
-
+    // [2] 공휴일 데이터 가져오기
+    let cachedHolidays = {};
+    async function fetchHolidays(year) {
+        if (cachedHolidays[year]) return cachedHolidays[year];
         try {
-            const docSnap = await getDoc(doc(db, "planner", "memo"));
-            if (docSnap.exists()) {
-                memoArea.value = docSnap.data().content || "";
-            }
-        } catch (e) { console.error("메모 로드 실패:", e); }
-
-        if (isMobile) {
-            memoContainer.classList.add('active');
-            if (overlay) overlay.style.display = 'block';
-        }
-    };
-
-    // 5. 메모장 및 모달 닫기 통합 함수
-    window.closeAll = function() {
-        const memoContainer = document.querySelector('.memo-container');
-        const overlay = document.querySelector('.overlay');
-        const modal = document.getElementById('modal');
-
-        if (memoContainer) memoContainer.classList.remove('active');
-        if (modal) modal.style.display = 'none';
-        if (overlay) overlay.style.display = 'none';
-    };
-
-        // 달력 그리기 (중복 제거 및 async 통합)
-window.renderCalendar = async function() {
-    const grid = document.getElementById('calendar-grid');
-    grid.innerHTML = '';
-    document.getElementById('display-year').innerText = currentYear;
-    document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
-
-    const holidays = await fetchHolidays(currentYear);
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-    ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
-    for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
-
-    for(let d=1; d<=lastDate; d++) {
-    const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
-    const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
-    
-    // 1. 공휴일/일정 데이터 가져오기
-    const userEvents = data[dateStr] || [];
-    const userHoliday = userEvents.find(ev => ev.isHoliday);
-    let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
-
-    // 2. 클래스 설정 (오늘 날짜 체크 추가)
-    let dayClass = "day";
-    if (dayOfWeek === 0 || holidayName) dayClass += " sun";
-    if (dayOfWeek === 6) dayClass += " sat";
-    
-    // [핵심] 오늘 날짜인지 확인하여 'today' 클래스 추가
-    const now = new Date();
-    if (currentYear === now.getFullYear() && 
-        currentMonth === now.getMonth() && 
-        d === now.getDate()) {
-        dayClass += " today";
+            const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
+            const hData = await response.json();
+            const hMap = {};
+            hData.forEach(h => {
+                const date = new Date(h.date);
+                const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+                hMap[key] = h.localName;
+            });
+            cachedHolidays[year] = hMap;
+            return hMap;
+        } catch (e) { return {}; }
     }
 
-    // 3. HTML 생성
-    const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
-    const tags = userEvents
-        .filter(ev => !ev.isHoliday)
-        .map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`)
-        .join('');
+    // [3] 달력 그리기 (핵심: 무한 루프 제거됨!)
+    async function renderCalendar() {
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        document.getElementById('display-year').innerText = currentYear;
+        document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
 
-    grid.innerHTML += `
-        <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
-            <span class="date-num">${d}</span>
-            ${holidayHtml}
-            <div class="event-container">${tags}</div>
-        </div>`;
-}
-    window.renderCalendar();
-};
-// 메모장 제어 로직
-memoArea.addEventListener('input', (e) => {
-    clearTimeout(memoTimer);
-    memoTimer = setTimeout(async () => { 
-        await setDoc(doc(db, "planner", "memo"), { text: e.target.value }); 
-    }, 800);
-});
+        const holidays = await fetchHolidays(currentYear);
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-memoContainer.addEventListener('click', (e) => {
-    if (window.innerWidth <= 768) {
-        if (!memoContainer.classList.contains('active')) {
+        ['일','월','화','수','목','금','토'].forEach(d => grid.innerHTML += `<div class="day-header">${d}</div>`);
+        for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="day"></div>`;
+
+        const now = new Date();
+        for(let d=1; d<=lastDate; d++) {
+            const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
+            const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
+            const userEvents = data[dateStr] || [];
+            const userHoliday = userEvents.find(ev => ev.isHoliday);
+            let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
+
+            let dayClass = "day";
+            if (dayOfWeek === 0 || holidayName) dayClass += " sun";
+            if (dayOfWeek === 6) dayClass += " sat";
+            if (currentYear === now.getFullYear() && currentMonth === now.getMonth() && d === now.getDate()) dayClass += " today";
+
+            const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
+            const tags = userEvents.filter(ev => !ev.isHoliday)
+                .map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`).join('');
+
+            grid.innerHTML += `
+                <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
+                    <span class="date-num">${d}</span>
+                    ${holidayHtml}
+                    <div class="event-container">${tags}</div>
+                </div>`;
+        }
+    }
+
+    // [4] 전역 함수 등록 (버튼/모달용)
+    window.changeMonth = (offset) => {
+        currentMonth += offset;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar();
+    };
+
+    window.goToday = () => {
+        const n = new Date(); currentYear = n.getFullYear(); currentMonth = n.getMonth();
+        renderCalendar();
+    };
+
+    window.openModal = (d) => {
+        selectedDate = d;
+        const parts = d.split('-');
+        document.getElementById('modal-date-display').innerText = `${parts[1]}월 ${parts[2]}일`;
+        document.getElementById('modal').style.display='block';
+        document.getElementById('overlay').style.display='block';
+        window.updateModalList();
+    };
+
+    window.closeModal = () => {
+        editIndex = null;
+        document.getElementById('event-input').value = '';
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    };
+
+    window.updateModalList = () => {
+        const div = document.getElementById('modal-list');
+        div.innerHTML = '';
+        const events = data[selectedDate] || [];
+        events.forEach((ev, i) => {
+            div.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:${ev.isHoliday ? '#fff5f5' : (ev.color || '#eee')}; padding:8px; margin-bottom:5px; border-radius:8px;">
+                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1;">${ev.text}</span>
+                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:red; cursor:pointer;">×</button>
+                </div>`;
+        });
+    };
+
+    window.prepareEdit = (i) => {
+        const ev = data[selectedDate][i];
+        document.getElementById('event-input').value = ev.text;
+        document.getElementById('is-holiday').checked = ev.isHoliday || false;
+        editIndex = i;
+        document.querySelector('.add-btn').innerText = "내용 수정 완료";
+    };
+
+    window.addEvent = async () => {
+        const input = document.getElementById('event-input');
+        if(!input.value) return;
+        if(!data[selectedDate]) data[selectedDate] = [];
+        const newEvent = { text: input.value, color: selectedColor, isHoliday: document.getElementById('is-holiday').checked };
+        if (editIndex !== null) { data[selectedDate][editIndex] = newEvent; editIndex = null; }
+        else { data[selectedDate].push(newEvent); }
+        await setDoc(doc(db, "planner", "data"), data);
+        window.closeModal();
+    };
+
+    window.deleteEvent = async (i) => {
+        data[selectedDate].splice(i, 1);
+        await setDoc(doc(db, "planner", "data"), data);
+        window.updateModalList();
+    };
+
+    window.selectColor = (c, el) => {
+        selectedColor = c;
+        document.querySelectorAll('.color-btn').forEach(b => b.style.border = 'none');
+        el.style.border = '2px solid #333';
+    };
+
+    // [5] 메모장 기능 (PC/모바일 구분)
+    window.toggleMemo = async () => {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && !memoContainer.classList.contains('active')) {
             memoContainer.classList.add('active');
             overlay.style.display = 'block';
-            memoArea.focus();
         }
-    } else {
-        memoArea.focus();
-    }
-});
-
-overlay.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        memoContainer.classList.remove('active');
-    }
-    overlay.style.display = 'none';
-    closeModal();
-});
-
-memoArea.addEventListener('click', (e) => {
-    e.stopPropagation();
-});
-
-
-        
-
-
-// window.addEvent = async function() {
-//     const input = document.getElementById('event-input');
-//     if(!input.value) return;
-//     if(!data[selectedDate]) data[selectedDate] = [];
-//     data[selectedDate].push({ text: input.value, color: selectedColor });
-//     await setDoc(doc(db, "planner", "data"), data);
-//     input.value = '';
-//     updateModalList();
-//     await renderCalendar();
-//     closeModal();
-// };
-// [통합 버전] 추가와 수정을 한 번에 처리하는 함수
-window.addEvent = async function() {
-    const input = document.getElementById('event-input');
-    const isHolidayCheck = document.getElementById('is-holiday').checked;
-    
-    if(!input.value) return;
-    if(!data[selectedDate]) data[selectedDate] = [];
-    
-    // [핵심 요청] 이미 공휴일이 있는데 또 공휴일로 지정해서 저장하려 할 때 차단
-    const existingHoliday = data[selectedDate].find(ev => ev.isHoliday);
-    
-    // 새로 만드는 게 공휴일인데, 이미 다른 공휴일이 존재한다면 (수정 중인 본인 제외)
-    if (isHolidayCheck && existingHoliday && editIndex === null) {
-        alert("이 날짜에는 이미 공휴일이 지정되어 있습니다. 기존 휴일을 먼저 수정하거나 삭제해 주세요.");
-        return; 
-    }
-
-    const newEvent = { 
-        text: input.value, 
-        color: selectedColor, // 이 변수가 작동하도록 HTML onclick을 수정함
-        isHoliday: isHolidayCheck 
+        // 데이터는 항상 불러옴
+        const snap = await getDoc(doc(db, "planner", "memo"));
+        if (snap.exists()) memoArea.value = snap.data().text || "";
     };
 
-    if (editIndex !== null) {
-        data[selectedDate][editIndex] = newEvent;
-        editIndex = null;
-    } else {
-        data[selectedDate].push(newEvent);
-    }
-    
-    await setDoc(doc(db, "planner", "data"), data);
-    
-    input.value = '';
-    document.getElementById('is-holiday').checked = false;
-    document.querySelector('.add-btn').innerText = "추가 / 수정 저장";
-    updateModalList();
-    await renderCalendar();
-    closeModal();
-};
-        
-window.deleteEvent = async (i) => {
-    data[selectedDate].splice(i, 1);
-    await setDoc(doc(db, "planner", "data"), data);
-    updateModalList();
-    await renderCalendar();
-};
+    memoArea.addEventListener('input', (e) => {
+        clearTimeout(memoTimer);
+        memoTimer = setTimeout(async () => {
+            await setDoc(doc(db, "planner", "memo"), { text: e.target.value });
+        }, 800);
+    });
 
-window.openModal = (d) => { 
-    selectedDate = d; 
-    const dateParts = d.split('-');
-    document.getElementById('modal-date-display').innerText = `${dateParts[1]}월 ${dateParts[2]}일`;
-    document.getElementById('modal').style.display='block'; 
-    document.getElementById('overlay').style.display='block'; 
-    updateModalList(); 
-};
-
-window.closeModal = () => {
-    // 1. 수정 상태 및 입력창 초기화
-    editIndex = null; 
-    const eventInput = document.getElementById('event-input');
-    if (eventInput) eventInput.value = ''; 
-    
-    const addBtn = document.querySelector('.add-btn');
-    if (addBtn) addBtn.innerText = "추가 / 수정하기";
-
-    // 2. 화면에서 모달과 오버레이 숨기기 (핵심 기능)
-    const modal = document.getElementById('modal');
-    const overlay = document.getElementById('overlay');
-    
-    if (modal) modal.style.display = 'none';
-    if (overlay) overlay.style.display = 'none';
-};
-
-// window.updateModalList = () => {
-//     const div = document.getElementById('modal-list'); 
-//     div.innerHTML = '';
-//     (data[selectedDate] || []).forEach((ev, i) => {
-//         div.innerHTML += `<div style="display:flex;justify-content:space-between;background:${ev.color};padding:8px;margin-bottom:5px;border-radius:5px;font-size:13px;">${ev.text} <button onclick="deleteEvent(${i})" style="border:none;background:none;color:red;cursor:pointer;">×</button></div>`;
-//     });
-// };
-
-// 초기 실행
-renderCalendar();
-    </script>
+    // 초기 실행
+    renderCalendar();
+</script>
 </body>
 </html>
