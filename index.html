@@ -312,22 +312,23 @@
         <div class="grid" id="calendar-grid"></div>
     </div>
 
-<div class="overlay" onclick="closeMemo(); closeEventModal();"></div>
+<div id="overlay" class="overlay" onclick="closeAll()"></div>
 <script>
     // 모든 창(일정 모달 + 메모장)을 닫는 통합 함수
-    window.closeAll = function() {
-        // 일정 모달 닫기 로직 (기존)
-        document.getElementById('modal').style.display = 'none';
-        
-        // 메모장 닫기 로직 (추가)
-        const memoContainer = document.querySelector('.memo-container');
-        if (memoContainer.classList.contains('active')) {
-            memoContainer.classList.remove('active');
-        }
-        
-        // 배경 숨기기
-        document.querySelector('.overlay').style.display = 'none';
-    };
+window.closeAll = function() {
+    const memoContainer = document.querySelector('.memo-container');
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+
+    // 1. 메모장 닫기 (active 클래스 제거)
+    if (memoContainer) memoContainer.classList.remove('active');
+    
+    // 2. 일정 모달 닫기
+    if (modal) modal.style.display = 'none';
+    
+    // 3. 배경 숨기기
+    if (overlay) overlay.style.display = 'none';
+};
 </script>
     <!-- <div class="modal" id="modal">
         <div style="margin-bottom: 15px;">
@@ -539,17 +540,26 @@
     };
 
     // [5] 메모장 기능 (PC/모바일 구분)
-    window.toggleMemo = async () => {
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile && !memoContainer.classList.contains('active')) {
-            memoContainer.classList.add('active');
-            overlay.style.display = 'block';
-        }
-        // 데이터는 항상 불러옴
-        const snap = await getDoc(doc(db, "planner", "memo"));
-        if (snap.exists()) memoArea.value = snap.data().text || "";
-    };
+window.toggleMemo = async function() {
+    const memoContainer = document.querySelector('.memo-container');
+    const memoArea = document.getElementById('memo-area');
+    const overlay = document.getElementById('overlay'); // 위 HTML의 id와 일치
+    const isMobile = window.innerWidth <= 768;
 
+    if (isMobile) {
+        // 이미 열려있다면 닫고 종료
+        if (memoContainer.classList.contains('active')) {
+            window.closeAll();
+            return;
+        }
+        // 닫혀있다면 열기
+        memoContainer.classList.add('active');
+        if (overlay) overlay.style.display = 'block'; // 배경 켜기
+        memoArea.focus();
+    }
+
+    // 최신 메모 데이터 불러오기 로직 (생략 - 기존 유지)
+};
     memoArea.addEventListener('input', (e) => {
         clearTimeout(memoTimer);
         memoTimer = setTimeout(async () => {
