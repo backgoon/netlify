@@ -49,7 +49,7 @@
     .grid { 
         display: grid; 
         grid-template-columns: repeat(7, 1fr); 
-        grid-auto-rows: minmax(100px, auto); /* [핵심] 내용 많으면 자동 확장 */
+        grid-auto-rows: minmax(100px, auto); 
         gap: 4px; 
         width: 100%; 
     }
@@ -73,24 +73,22 @@
         flex-direction: column; 
         height: auto; 
     }
-.day.today { 
-    border: 2px solid var(--pink) !important; 
-    background: var(--today) !important; /* 연한 노란색 배경 */
-    box-shadow: inset 0 0 5px rgba(255,133,161,0.3);
-}
+    .day.today { 
+        border: 2px solid var(--pink) !important; 
+        background: var(--today) !important; 
+        box-shadow: inset 0 0 5px rgba(255,133,161,0.3);
+    }
 
-/* 오늘 날짜 숫자 강조 (선택 사항) */
-.day.today .date-num {
-    background: var(--pink);
-    color: white !important;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-    /* [중요] 일요일 및 공휴일 빨간색 강제 적용 */
+    .day.today .date-num {
+        background: var(--pink);
+        color: white !important;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
     .day.sun .date-num, 
     .day.sun .holiday-label { 
         color: var(--sun) !important; 
@@ -99,7 +97,6 @@
 
     .day .date-num { font-weight: bold; margin-bottom: 4px; }
 
-    /* 공휴일 라벨 스타일 */
     .holiday-label {
         font-size: 11px;
         font-weight: 800;
@@ -108,17 +105,15 @@
         word-break: break-all;
     }
 
-    /* 일정 태그 컨테이너 */
     .event-container {
         display: flex;
-        flex-wrap: wrap; /* 짧은 일정은 옆으로, 길면 아래로 */
+        flex-wrap: wrap;
         gap: 3px;
         width: 100%;
         padding: 2px;
         justify-content: flex-start;
     }
 
-    /* 일정 태그 스타일 */
     .event-tag {
         display: inline-block;
         padding: 2px 6px;
@@ -133,7 +128,7 @@
         cursor: pointer;
     }
 
-    /* 메모장 컨테이너 및 영역 */
+    /* 메모장 */
     .memo-container { 
         position: relative; 
         background: #e0f2f1; 
@@ -144,10 +139,6 @@
         border-left: 10px solid #b2dfdb; 
         z-index: 100;
         cursor: text;
-        -webkit-tap-highlight-color: transparent;
-    
-        /* 안드로이드 등 일부 브라우저 대응 */
-        outline: none;
     }
 
     #memo-area { 
@@ -162,17 +153,12 @@
         outline: none; 
         display: block; 
         color: #1a1a1a; 
-        caret-color: #ff0000 !important; /* 빨간 커서 유지 */
+        caret-color: #ff0000 !important; 
         padding: 10px; 
         box-sizing: border-box; 
         overflow-y: auto;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-        -webkit-tap-highlight-color: transparent;
-        outline: none;
     }
 
-    /* 모달 및 컨트롤 */
     .nav-control { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; }
     .nav-btn { padding: 8px 16px; cursor: pointer; background: var(--pink); color: white; border: none; border-radius: 8px; font-weight: bold; }
     
@@ -185,7 +171,6 @@
     .add-btn { width: 100%; padding: 12px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; }
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
 
-    /* 모바일 반응형 설정 (768px 이하) */
     @media (max-width: 768px) {
         .memo-container {
             position: fixed !important; top: 20px !important; right: 20px !important;
@@ -193,117 +178,34 @@
             border-radius: 50% !important; border: 3px solid #b2dfdb !important;
             padding: 0 !important; display: flex !important;
             justify-content: center !important; align-items: center !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
         }
         .memo-container:not(.active)::before { content: '📝'; font-size: 24px; }
         .memo-container:not(.active) #memo-area { display: none !important; }
-        .memo-container:not(.active) {
-            cursor: pointer;
-        }
         .memo-container.active {
             border-radius: 15px !important; top: 50% !important; left: 50% !important;
             transform: translate(-50%, -50%) !important;
             width: 90% !important; height: 350px !important;
             z-index: 1001 !important; padding: 15px !important;
-            background: #e0f2f1 !important;
-            pointer-events: auto;
         }
-        .memo-container.active::before { content: none !important; }
-        .memo-container.active #memo-area { display: block !important; }
-
-        /* [핵심] 모바일에서만 가로로 칸이 늘어나도록 설정 */
         .grid { 
-        display: grid; 
-        /* 1fr 대신 내용에 따라 조금 더 유연하게 배분 (최소폭 12%로 하향) */
-        grid-template-columns: repeat(7, minmax(12%, 1fr)); 
-        grid-auto-rows: minmax(90px, auto); 
-        gap: 1px; /* 간격을 최소화해서 글자 공간 확보 */
-        width: 100%;
-        overflow-x: hidden;
-    }
-
-    .day { 
-        padding: 2px; /* 패딩을 줄여서 내부 공간 확보 */
-        min-width: 0;
-    }
-
-    /* [수정] 일반 일정: 4글자까지 최대한 보여주기 */
-    .event-tag {
-        display: block; 
-        width: 100%;
-        font-size: 8.5px; /* 시인성을 위해 8.5px로 소폭 상향 */
-        letter-spacing: -0.8px; 
-        padding: 2px 1px;
-        margin: 1px 0;
-        line-height: 1.1;
-        /* text-align: center; */
-        border-radius: 2px;
-        
-        /* [핵심] 4글자 이상의 긴 문구를 아래로 보냄 */
-        white-space: normal;      /* 자동 줄바꿈 허용 */
-        word-break: break-all;    /* 한글/영문 상관없이 글자 단위로 끊기 */
-        overflow-wrap: break-word; 
-        
-        /* 혹시 너무 길어져서 칸을 뚫고 나가는 것 방지 */
-        max-height: 40px; 
-        overflow: hidden;
-    }
-
-    /* [수정] 공휴일 라벨: 길어지면 무조건 두 줄 이상으로 */
-    .holiday-label {
-        font-size: 9px;
-        letter-spacing: -0.8px;
-        font-weight: 800;
-        color: var(--sun) !important;
-        display: block;
-        /* text-align: center; */
-        margin-bottom: 3px;
-        
-        /* 공휴일도 길면 줄바꿈 처리 */
-        white-space: normal;
-        word-break: break-all;
-        line-height: 1.1;
-    }
-
-    /* 날짜 숫자 상단 배치 */
-    .day .date-num {
-        font-size: 10px;
-        margin-bottom: 2px;
-        line-height: 1;
-        display: block;
-    }
-
-    /* 메모장 모바일 설정 (기존 유지) */
-    .memo-container {
-        position: fixed !important; top: 20px !important; right: 20px !important;
-        width: 50px !important; height: 50px !important;
-        border-radius: 50% !important; border: 3px solid #b2dfdb !important;
-        display: flex !important; justify-content: center !important; align-items: center !important;
-    }
-    .memo-container.active {
-        width: 90% !important; height: 350px !important;
-        top: 50% !important; left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
-        
+            grid-template-columns: repeat(7, minmax(12%, 1fr)); 
+            grid-auto-rows: minmax(90px, auto); 
+            gap: 1px; 
+        }
+        .event-tag { font-size: 8.5px; letter-spacing: -0.8px; padding: 2px 1px; }
+        .holiday-label { font-size: 9px; }
     }
 </style>
 </head>
 <body>
     <div class="header">
         <div class="year-area">
-            <span style="font-size: 28px; font-weight: 800; color: var(--blue);">
-                <span id="display-year"></span>년
-            </span>
+            <span id="display-year"></span>년
             <button class="today-btn" onclick="goToday()">오늘</button>
         </div>
-        <div class="memo-container" onclick="event.stopPropagation()">
-    <div class="memo-icon" onclick="toggleMemo()">📝</div>
-    <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
-</div>
-        <!-- <div class="memo-container" onclick="toggleMemo()">
+        <div class="memo-container" onclick="toggleMemo(event)">
             <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
-        </div> -->
+        </div>
     </div>
 
     <div class="nav-control">
@@ -316,69 +218,35 @@
         <div class="grid" id="calendar-grid"></div>
     </div>
 
-<div id="overlay" class="overlay" onclick="closeAll()"></div>
-<!-- <script>
-    // 모든 창(일정 모달 + 메모장)을 닫는 통합 함수
-window.closeAll = function() {
-    const memoContainer = document.querySelector('.memo-container');
-    const modal = document.getElementById('modal');
-    const overlay = document.getElementById('overlay');
+    <div id="overlay" class="overlay" onclick="closeAll()"></div>
 
-    if (memoContainer) memoContainer.classList.remove('active');
-    if (modal) modal.style.display = 'none';
-    if (overlay) overlay.style.display = 'none';
-};
-</script> -->
-    <!-- <div class="modal" id="modal">
-        <div style="margin-bottom: 15px;">
-            <span id="modal-date-display" style="color: var(--pink); font-weight: bold; font-size: 1.1em;"></span>
-            <span style="color: #666;"> 일정 추가</span>
+    <div id="modal" class="modal">
+        <h3 id="modal-date-display" style="text-align: center; color: #333; margin-bottom: 20px;"></h3>
+        <div style="font-size: 13px; color: #555; margin-bottom: 8px; font-weight: bold;">📅 등록된 일정</div>
+        <div id="modal-list" style="margin-bottom:20px; max-height:180px; overflow-y:auto; border: 1px solid #ddd; padding: 10px; border-radius: 12px; background: #fafafa;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="event-input" placeholder="일정 내용을 입력하세요" style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box;">
+            <div style="display: flex; gap: 12px; justify-content: center; margin: 10px 0;">
+                <div class="color-btn" onclick="selectColor('#ffdce0', this)" style="background:#ffdce0; width:30px; height:30px; border-radius:50%; cursor:pointer;"></div>
+                <div class="color-btn" onclick="selectColor('#e2f0cb', this)" style="background:#e2f0cb; width:30px; height:30px; border-radius:50%; cursor:pointer;"></div>
+                <div class="color-btn" onclick="selectColor('#c7ceea', this)" style="background:#c7ceea; width:30px; height:30px; border-radius:50%; cursor:pointer;"></div>
+                <div class="color-btn" onclick="selectColor('#f7d1ba', this)" style="background:#f7d1ba; width:30px; height:30px; border-radius:50%; cursor:pointer;"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; background: #fff4f4; padding: 8px; border-radius: 8px;">
+                <input type="checkbox" id="is-holiday" style="width:18px; height:18px;">
+                <label for="is-holiday" style="color: #e53935; font-weight: bold; font-size: 13px;">이 일정을 공휴일(빨간날)로 지정</label>
+            </div>
+            <button class="add-btn" onclick="addEvent()" style="background: #333;">추가 / 수정 저장</button>
         </div>
-        <input type="text" id="event-input" placeholder="일정을 입력하세요" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;">
-        <button class="add-btn" onclick="addEvent()">추가하기</button>
-        <div id="modal-list" style="margin-top:15px; max-height:150px; overflow-y:auto;"></div>
-    </div> -->
-
-<div id="modal" class="modal">
-    <h3 id="modal-date-display" style="text-align: center; color: #333; margin-bottom: 20px;"></h3>
-    
-    <div style="font-size: 13px; color: #555; margin-bottom: 8px; font-weight: bold;">📅 등록된 일정</div>
-    <div id="modal-list" style="margin-bottom:20px; max-height:180px; overflow-y:auto; border: 1px solid #ddd; padding: 10px; border-radius: 12px; background: #fafafa;">
-        </div>
-
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-        <input type="text" id="event-input" placeholder="일정 내용을 입력하세요" 
-               style="width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 14px;">
-        
-<div style="display: flex; gap: 12px; justify-content: center; margin: 10px 0;">
-    <div class="color-btn" onclick="selectColor('#ffdce0', this)" style="background:#ffdce0; width:30px; height:30px; border-radius:50%; cursor:pointer; transition:0.2s;"></div>
-    <div class="color-btn" onclick="selectColor('#e2f0cb', this)" style="background:#e2f0cb; width:30px; height:30px; border-radius:50%; cursor:pointer; transition:0.2s;"></div>
-    <div class="color-btn" onclick="selectColor('#c7ceea', this)" style="background:#c7ceea; width:30px; height:30px; border-radius:50%; cursor:pointer; transition:0.2s;"></div>
-    <div class="color-btn" onclick="selectColor('#f7d1ba', this)" style="background:#f7d1ba; width:30px; height:30px; border-radius:50%; cursor:pointer; transition:0.2s;"></div>
-</div>
-
-        <div style="display: flex; align-items: center; gap: 8px; background: #fff4f4; padding: 8px; border-radius: 8px;">
-            <input type="checkbox" id="is-holiday" style="width:18px; height:18px; cursor:pointer;">
-            <label for="is-holiday" style="color: #e53935; font-weight: bold; font-size: 13px; cursor:pointer;">이 일정을 공휴일(빨간날)로 지정</label>
-        </div>
-
-        <button class="add-btn" onclick="addEvent()" style="width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">추가 / 수정 저장</button>
+        <button onclick="closeAll()" style="width:100%; margin-top:15px; border:none; background:transparent; color: #999; cursor:pointer;">취소하고 닫기</button>
     </div>
 
-    <button onclick="closeModal()" style="width:100%; margin-top:15px; border:none; background:transparent; color: #999; cursor:pointer; font-size: 13px;">취소하고 닫기</button>
-</div>
-
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-        apiKey: "AIzaSyCjKNiwIuWn1-MhAgsIRz1C5FCa7NTy_5o",
-        authDomain: "backgoon-811dc.firebaseapp.com",
-        projectId: "backgoon-811dc",
-        storageBucket: "backgoon-811dc.firebasestorage.app",
-        messagingSenderId: "275172993103",
-        appId: "1:275172993103:web:e001d6487f8429d736a23a"
+        // 여기에 승일 님의 Config를 넣어주세요.
     };
 
     const app = initializeApp(firebaseConfig);
@@ -392,21 +260,17 @@ window.closeAll = function() {
     const memoContainer = document.querySelector('.memo-container');
     const overlay = document.getElementById('overlay');
 
-    // [1] 실시간 데이터 감시 (onSnapshot)
+    // [1] 실시간 감시
     onSnapshot(doc(db, "planner", "data"), (snap) => {
-        if (snap.exists()) {
-            data = snap.data();
-            renderCalendar(); // 데이터 바뀔 때만 호출
-        }
+        if (snap.exists()) { data = snap.data(); renderCalendar(); }
     });
-
     onSnapshot(doc(db, "planner", "memo"), (snap) => {
         if (snap.exists() && document.activeElement !== memoArea) {
             memoArea.value = snap.data().text || "";
         }
     });
 
-    // [2] 공휴일 데이터 가져오기
+    // [2] 공휴일 API
     let cachedHolidays = {};
     async function fetchHolidays(year) {
         if (cachedHolidays[year]) return cachedHolidays[year];
@@ -415,19 +279,17 @@ window.closeAll = function() {
             const hData = await response.json();
             const hMap = {};
             hData.forEach(h => {
-                const date = new Date(h.date);
-                const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-                hMap[key] = h.localName;
+                const d = new Date(h.date);
+                hMap[`${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`] = h.localName;
             });
             cachedHolidays[year] = hMap;
             return hMap;
         } catch (e) { return {}; }
     }
 
-    // [3] 달력 그리기 (핵심: 무한 루프 제거됨!)
+    // [3] 달력 렌더링
     async function renderCalendar() {
         const grid = document.getElementById('calendar-grid');
-        if (!grid) return;
         grid.innerHTML = '';
         document.getElementById('display-year').innerText = currentYear;
         document.getElementById('month-display').innerText = `${currentMonth + 1}월`;
@@ -444,30 +306,49 @@ window.closeAll = function() {
             const dateStr = `${currentYear}-${currentMonth+1}-${d}`;
             const dayOfWeek = new Date(currentYear, currentMonth, d).getDay();
             const userEvents = data[dateStr] || [];
-            const userHoliday = userEvents.find(ev => ev.isHoliday);
-            let holidayName = holidays[dateStr] || (userHoliday ? userHoliday.text : '');
+            const isUserHoliday = userEvents.find(ev => ev.isHoliday);
+            let holidayName = holidays[dateStr] || (isUserHoliday ? isUserHoliday.text : '');
 
             let dayClass = "day";
             if (dayOfWeek === 0 || holidayName) dayClass += " sun";
             if (dayOfWeek === 6) dayClass += " sat";
             if (currentYear === now.getFullYear() && currentMonth === now.getMonth() && d === now.getDate()) dayClass += " today";
 
-            const holidayHtml = holidayName ? `<span class="holiday-label">${holidayName}</span>` : '';
-            const tags = userEvents.filter(ev => !ev.isHoliday)
-                .map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`).join('');
-
             grid.innerHTML += `
                 <div class="${dayClass}" ondblclick="openModal('${dateStr}')">
                     <span class="date-num">${d}</span>
-                    ${holidayHtml}
-                    <div class="event-container">${tags}</div>
+                    ${holidayName ? `<span class="holiday-label">${holidayName}</span>` : ''}
+                    <div class="event-container">${userEvents.filter(ev => !ev.isHoliday).map(ev => `<span class="event-tag" style="background:${ev.color || '#eee'};">${ev.text}</span>`).join('')}</div>
                 </div>`;
         }
     }
 
-    // [4] 전역 함수 등록 (버튼/모달용)
-    window.changeMonth = (offset) => {
-        currentMonth += offset;
+    // [4] 통합 함수 (전역 등록)
+    window.closeAll = () => {
+        if (memoContainer) memoContainer.classList.remove('active');
+        document.getElementById('modal').style.display = 'none';
+        overlay.style.display = 'none';
+        editIndex = null;
+    };
+
+    window.toggleMemo = async function(e) {
+        if (e) e.stopPropagation();
+        const isMobile = window.innerWidth <= 768;
+
+        // 즉시 데이터 업데이트
+        const snap = await getDoc(doc(db, "planner", "memo"));
+        if (snap.exists()) memoArea.value = snap.data().text || "";
+
+        if (isMobile) {
+            if (memoContainer.classList.contains('active')) return;
+            memoContainer.classList.add('active');
+            overlay.style.display = 'block';
+            memoArea.focus();
+        }
+    };
+
+    window.changeMonth = (n) => {
+        currentMonth += n;
         if (currentMonth < 0) { currentMonth = 11; currentYear--; }
         else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
         renderCalendar();
@@ -480,50 +361,32 @@ window.closeAll = function() {
 
     window.openModal = (d) => {
         selectedDate = d;
-        const parts = d.split('-');
-        document.getElementById('modal-date-display').innerText = `${parts[1]}월 ${parts[2]}일`;
-        document.getElementById('modal').style.display='block';
-        document.getElementById('overlay').style.display='block';
+        const p = d.split('-');
+        document.getElementById('modal-date-display').innerText = `${p[1]}월 ${p[2]}일`;
+        document.getElementById('modal').style.display = 'block';
+        overlay.style.display = 'block';
         window.updateModalList();
-    };
-
-    window.closeModal = () => {
-        editIndex = null;
-        document.getElementById('event-input').value = '';
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
     };
 
     window.updateModalList = () => {
         const div = document.getElementById('modal-list');
         div.innerHTML = '';
-        const events = data[selectedDate] || [];
-        events.forEach((ev, i) => {
-            div.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:${ev.isHoliday ? '#fff5f5' : (ev.color || '#eee')}; padding:8px; margin-bottom:5px; border-radius:8px;">
-                    <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1;">${ev.text}</span>
-                    <button onclick="deleteEvent(${i})" style="border:none; background:none; color:red; cursor:pointer;">×</button>
-                </div>`;
+        (data[selectedDate] || []).forEach((ev, i) => {
+            div.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:${ev.isHoliday ? '#fff5f5' : (ev.color || '#eee')}; padding:8px; margin-bottom:5px; border-radius:8px;">
+                <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1;">${ev.text}</span>
+                <button onclick="deleteEvent(${i})" style="border:none; background:none; color:red; cursor:pointer;">×</button></div>`;
         });
-    };
-
-    window.prepareEdit = (i) => {
-        const ev = data[selectedDate][i];
-        document.getElementById('event-input').value = ev.text;
-        document.getElementById('is-holiday').checked = ev.isHoliday || false;
-        editIndex = i;
-        document.querySelector('.add-btn').innerText = "내용 수정 완료";
     };
 
     window.addEvent = async () => {
         const input = document.getElementById('event-input');
-        if(!input.value) return;
-        if(!data[selectedDate]) data[selectedDate] = [];
-        const newEvent = { text: input.value, color: selectedColor, isHoliday: document.getElementById('is-holiday').checked };
-        if (editIndex !== null) { data[selectedDate][editIndex] = newEvent; editIndex = null; }
-        else { data[selectedDate].push(newEvent); }
+        if (!input.value) return;
+        if (!data[selectedDate]) data[selectedDate] = [];
+        const ev = { text: input.value, color: selectedColor, isHoliday: document.getElementById('is-holiday').checked };
+        if (editIndex !== null) data[selectedDate][editIndex] = ev;
+        else data[selectedDate].push(ev);
         await setDoc(doc(db, "planner", "data"), data);
-        window.closeModal();
+        window.closeAll();
     };
 
     window.deleteEvent = async (i) => {
@@ -532,47 +395,26 @@ window.closeAll = function() {
         window.updateModalList();
     };
 
+    window.prepareEdit = (i) => {
+        const ev = data[selectedDate][i];
+        document.getElementById('event-input').value = ev.text;
+        document.getElementById('is-holiday').checked = ev.isHoliday;
+        editIndex = i;
+    };
+
     window.selectColor = (c, el) => {
         selectedColor = c;
         document.querySelectorAll('.color-btn').forEach(b => b.style.border = 'none');
         el.style.border = '2px solid #333';
     };
 
-    // [5] 메모장 기능 (PC/모바일 구분)
-window.toggleMemo = async function() {
-    const memoContainer = document.querySelector('.memo-container');
-    const memoArea = document.getElementById('memo-area');
-    const overlay = document.getElementById('overlay');
-    const isMobile = window.innerWidth <= 768;
-
-    // 1. 데이터 먼저 불러오기 (내용 업데이트 안 되는 문제 해결)
-    try {
-        const docSnap = await getDoc(doc(db, "planner", "memo"));
-        if (docSnap.exists()) {
-            // [주의] 반드시 'text' 필드로 통일하세요!
-            memoArea.value = docSnap.data().text || "";
-        }
-    } catch (e) { console.error("메모 로드 실패:", e); }
-
-    // 2. 모바일 레이아웃 제어
-    if (isMobile) {
-        if (memoContainer.classList.contains('active')) return; // 이미 열려있으면 중복 실행 방지
-        memoContainer.classList.add('active');
-        if (overlay) overlay.style.display = 'block';
-        memoArea.focus();
-    }
-};
-  memoArea.addEventListener('click', (e) => {
-    e.stopPropagation(); // 클릭 이벤트가 부모(overlay/container)로 퍼지는 걸 막음
-});
+    // [5] 이벤트 리스너 (수정 시 닫힘 방지)
+    memoArea.addEventListener('click', (e) => e.stopPropagation());
     memoArea.addEventListener('input', (e) => {
         clearTimeout(memoTimer);
-        memoTimer = setTimeout(async () => {
-            await setDoc(doc(db, "planner", "memo"), { text: e.target.value });
-        }, 800);
+        memoTimer = setTimeout(() => setDoc(doc(db, "planner", "memo"), { text: e.target.value }), 800);
     });
 
-    // 초기 실행
     renderCalendar();
 </script>
 </body>
