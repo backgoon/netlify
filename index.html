@@ -522,7 +522,61 @@ async function fetchHolidays(year) {
     }
 }
 
-// 달력 그리기 (중복 제거 및 async 통합)
+
+
+        // 달력 조작 함수들 (await 추가)
+    window.changeMonth = function(offset) {
+        currentMonth += offset;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        window.renderCalendar(); // 달력 다시 그리기
+    };
+
+    window.goToday = function() {
+        const now = new Date();
+        currentYear = now.getFullYear();
+        currentMonth = now.getMonth();
+        window.renderCalendar();
+    };
+
+window.toggleMemo = async function() {
+        const memoContainer = document.querySelector('.memo-container');
+        const memoArea = document.getElementById('memo-area');
+        const overlay = document.querySelector('.overlay');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile && memoContainer.classList.contains('active')) return;
+
+        try {
+            const docSnap = await getDoc(doc(db, "planner", "memo"));
+            if (docSnap.exists()) {
+                memoArea.value = docSnap.data().content || "";
+            }
+        } catch (e) { console.error("메모 로드 실패:", e); }
+
+        if (isMobile) {
+            memoContainer.classList.add('active');
+            if (overlay) overlay.style.display = 'block';
+        }
+    };
+
+    // 5. 메모장 및 모달 닫기 통합 함수
+    window.closeAll = function() {
+        const memoContainer = document.querySelector('.memo-container');
+        const overlay = document.querySelector('.overlay');
+        const modal = document.getElementById('modal');
+
+        if (memoContainer) memoContainer.classList.remove('active');
+        if (modal) modal.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
+    };
+
+        // 달력 그리기 (중복 제거 및 async 통합)
 window.renderCalendar = async function() {
     const grid = document.getElementById('calendar-grid');
     grid.innerHTML = '';
@@ -574,42 +628,6 @@ window.renderCalendar = async function() {
 }
     window.renderCalendar();
 };
-
-
-window.toggleMemo = async function() {
-        const memoContainer = document.querySelector('.memo-container');
-        const memoArea = document.getElementById('memo-area');
-        const overlay = document.querySelector('.overlay');
-        const isMobile = window.innerWidth <= 768;
-
-        // 모바일에서 이미 열려있으면 중복 실행 방지
-        if (isMobile && memoContainer.classList.contains('active')) return;
-
-        // 최신 데이터 가져오기
-        try {
-            const docSnap = await getDoc(doc(db, "planner", "memo"));
-            if (docSnap.exists()) {
-                memoArea.value = docSnap.data().content || "";
-            }
-        } catch (e) { console.error("메모 로드 실패:", e); }
-
-        // 모바일일 때만 레이아웃 변경
-        if (isMobile) {
-            memoContainer.classList.add('active');
-            if (overlay) overlay.style.display = 'block';
-        }
-    };
-
-// [추가] 메모장만 닫는 전용 함수 (닫기 버튼이나 배경 클릭용)
-window.closeMemo = function() {
-        const memoContainer = document.querySelector('.memo-container');
-        const overlay = document.querySelector('.overlay');
-        if (memoContainer.classList.contains('active')) {
-            memoContainer.classList.remove('active');
-            if (overlay) overlay.style.display = 'none';
-        }
-    };
-        
 // 메모장 제어 로직
 memoArea.addEventListener('input', (e) => {
     clearTimeout(memoTimer);
@@ -644,25 +662,7 @@ memoArea.addEventListener('click', (e) => {
 
 
         
-// 달력 조작 함수들 (await 추가)
-    window.changeMonth = function(offset) {
-        currentMonth += offset;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        } else if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        window.renderCalendar(); // 달력 다시 그리기
-    };
 
-    window.goToday = function() {
-        const now = new Date();
-        currentYear = now.getFullYear();
-        currentMonth = now.getMonth();
-        window.renderCalendar();
-    };
 
 // window.addEvent = async function() {
 //     const input = document.getElementById('event-input');
