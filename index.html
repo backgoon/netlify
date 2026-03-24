@@ -297,9 +297,13 @@
             </span>
             <button class="today-btn" onclick="goToday()">오늘</button>
         </div>
-        <div class="memo-container" onclick="toggleMemo()">
+        <div class="memo-container" onclick="event.stopPropagation()">
+    <div class="memo-icon" onclick="toggleMemo()">📝</div>
+    <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
+</div>
+        <!-- <div class="memo-container" onclick="toggleMemo()">
             <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
-        </div>
+        </div> -->
     </div>
 
     <div class="nav-control">
@@ -313,23 +317,18 @@
     </div>
 
 <div id="overlay" class="overlay" onclick="closeAll()"></div>
-<script>
+<!-- <script>
     // 모든 창(일정 모달 + 메모장)을 닫는 통합 함수
 window.closeAll = function() {
     const memoContainer = document.querySelector('.memo-container');
     const modal = document.getElementById('modal');
     const overlay = document.getElementById('overlay');
 
-    // 1. 메모장 닫기 (active 클래스 제거)
     if (memoContainer) memoContainer.classList.remove('active');
-    
-    // 2. 일정 모달 닫기
     if (modal) modal.style.display = 'none';
-    
-    // 3. 배경 숨기기
     if (overlay) overlay.style.display = 'none';
 };
-</script>
+</script> -->
     <!-- <div class="modal" id="modal">
         <div style="margin-bottom: 15px;">
             <span id="modal-date-display" style="color: var(--pink); font-weight: bold; font-size: 1.1em;"></span>
@@ -543,23 +542,29 @@ window.closeAll = function() {
 window.toggleMemo = async function() {
     const memoContainer = document.querySelector('.memo-container');
     const memoArea = document.getElementById('memo-area');
-    const overlay = document.getElementById('overlay'); // 위 HTML의 id와 일치
+    const overlay = document.getElementById('overlay');
     const isMobile = window.innerWidth <= 768;
 
-    if (isMobile) {
-        // 이미 열려있다면 닫고 종료
-        if (memoContainer.classList.contains('active')) {
-            window.closeAll();
-            return;
+    // 1. 데이터 먼저 불러오기 (내용 업데이트 안 되는 문제 해결)
+    try {
+        const docSnap = await getDoc(doc(db, "planner", "memo"));
+        if (docSnap.exists()) {
+            // [주의] 반드시 'text' 필드로 통일하세요!
+            memoArea.value = docSnap.data().text || "";
         }
-        // 닫혀있다면 열기
+    } catch (e) { console.error("메모 로드 실패:", e); }
+
+    // 2. 모바일 레이아웃 제어
+    if (isMobile) {
+        if (memoContainer.classList.contains('active')) return; // 이미 열려있으면 중복 실행 방지
         memoContainer.classList.add('active');
-        if (overlay) overlay.style.display = 'block'; // 배경 켜기
+        if (overlay) overlay.style.display = 'block';
         memoArea.focus();
     }
-
-    // 최신 메모 데이터 불러오기 로직 (생략 - 기존 유지)
 };
+  memoArea.addEventListener('click', (e) => {
+    e.stopPropagation(); // 클릭 이벤트가 부모(overlay/container)로 퍼지는 걸 막음
+});
     memoArea.addEventListener('input', (e) => {
         clearTimeout(memoTimer);
         memoTimer = setTimeout(async () => {
