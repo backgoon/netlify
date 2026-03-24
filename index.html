@@ -295,7 +295,7 @@
             <span style="font-size: 28px; font-weight: 800; color: var(--blue);">
                 <span id="display-year"></span>년
             </span>
-            <button class="today-btn" onclick="goToToday()">오늘</button>
+            <button class="today-btn" onclick="goToday()">오늘</button>
         </div>
         <div class="memo-container" onclick="toggleMemo()">
             <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
@@ -572,45 +572,43 @@ window.renderCalendar = async function() {
             <div class="event-container">${tags}</div>
         </div>`;
 }
+    window.renderCalendar();
 };
 
 
 window.toggleMemo = async function() {
-    const memoContainer = document.querySelector('.memo-container');
-    const memoArea = document.getElementById('memo-area');
-    const overlay = document.querySelector('.overlay');
+        const memoContainer = document.querySelector('.memo-container');
+        const memoArea = document.getElementById('memo-area');
+        const overlay = document.querySelector('.overlay');
+        const isMobile = window.innerWidth <= 768;
 
-    // [체크] 현재 화면이 모바일인지 확인 (768px 이하)
-    const isMobile = window.innerWidth <= 768;
+        // 모바일에서 이미 열려있으면 중복 실행 방지
+        if (isMobile && memoContainer.classList.contains('active')) return;
 
-    // 1. 모바일에서 이미 열려있다면 아무것도 안 함 (입력 방해 방지)
-    if (isMobile && memoContainer.classList.contains('active')) return;
+        // 최신 데이터 가져오기
+        try {
+            const docSnap = await getDoc(doc(db, "planner", "memo"));
+            if (docSnap.exists()) {
+                memoArea.value = docSnap.data().content || "";
+            }
+        } catch (e) { console.error("메모 로드 실패:", e); }
 
-    // 2. 데이터 최신화 (공통)
-    try {
-        const docSnap = await getDoc(doc(db, "planner", "memo"));
-        if (docSnap.exists()) {
-            memoArea.value = docSnap.data().content || "";
+        // 모바일일 때만 레이아웃 변경
+        if (isMobile) {
+            memoContainer.classList.add('active');
+            if (overlay) overlay.style.display = 'block';
         }
-    } catch (e) {
-        console.error("메모 로딩 실패:", e);
-    }
-
-    // 3. 모바일일 때만 배경 흐림(Overlay)과 active 클래스 적용
-    if (isMobile) {
-        memoContainer.classList.add('active');
-        if (overlay) overlay.style.display = 'block';
-    }
-};
+    };
 
 // [추가] 메모장만 닫는 전용 함수 (닫기 버튼이나 배경 클릭용)
 window.closeMemo = function() {
-    const memoContainer = document.querySelector('.memo-container');
-    const overlay = document.querySelector('.overlay');
-    
-    memoContainer.classList.remove('active');
-    overlay.style.display = 'none';
-};
+        const memoContainer = document.querySelector('.memo-container');
+        const overlay = document.querySelector('.overlay');
+        if (memoContainer.classList.contains('active')) {
+            memoContainer.classList.remove('active');
+            if (overlay) overlay.style.display = 'none';
+        }
+    };
         
 // 메모장 제어 로직
 memoArea.addEventListener('input', (e) => {
@@ -647,18 +645,24 @@ memoArea.addEventListener('click', (e) => {
 
         
 // 달력 조작 함수들 (await 추가)
-window.changeMonth = async (v) => { 
-    currentMonth += v; 
-    if(currentMonth < 0){ currentMonth = 11; currentYear--; }
-    else if(currentMonth > 11){ currentMonth = 0; currentYear++; } 
-    await renderCalendar(); 
-};
+    window.changeMonth = function(offset) {
+        currentMonth += offset;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        window.renderCalendar(); // 달력 다시 그리기
+    };
 
-window.goToToday = async () => { 
-    currentYear = new Date().getFullYear(); 
-    currentMonth = new Date().getMonth(); 
-    await renderCalendar(); 
-};
+    window.goToday = function() {
+        const now = new Date();
+        currentYear = now.getFullYear();
+        currentMonth = now.getMonth();
+        window.renderCalendar();
+    };
 
 // window.addEvent = async function() {
 //     const input = document.getElementById('event-input');
