@@ -184,16 +184,40 @@
         window.updateModalList();
     };
 
+    // [수정] 모달 내 일정 목록 업데이트 함수
     window.updateModalList = () => {
         const div = document.getElementById('modal-list');
         div.innerHTML = '';
-        (data[selectedDate] || []).forEach((ev, i) => {
-            // [해결] 1번: 등록된 일정 리스트에 공휴일 표시 추가
-            const tag = ev.isHoliday ? `<b style="color:red;">[공휴일]</b> ` : '';
-            div.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:${ev.isHoliday ? '#fff5f5' : (ev.color || '#eee')}; padding:8px; margin-bottom:5px; border-radius:8px;">
-                <span onclick="prepareEdit(${i})" style="cursor:pointer; flex:1;">${tag}${ev.text}</span>
-                <button onclick="deleteEvent(${i})" style="border:none; background:none; color:red; cursor:pointer;">×</button></div>`;
+        
+        // 현재 날짜의 일정 가져오기 (없으면 빈 배열)
+        const events = data[selectedDate] || [];
+        
+        // [해결] 공휴일(isHoliday: true)이 상단에 오도록 정렬
+        const sortedEvents = [...events].sort((a, b) => {
+            return (b.isHoliday ? 1 : 0) - (a.isHoliday ? 1 : 0);
         });
+
+        sortedEvents.forEach((ev, i) => {
+            // [해결] [공휴일] 문구 대신 🚩 아이콘 사용
+            const icon = ev.isHoliday ? `<span style="color:#e53935; margin-right:5px;">🚩</span>` : '';
+            
+            // 실제 데이터(data[selectedDate])에서의 원래 인덱스를 찾아야 삭제가 정확함
+            const originalIndex = events.indexOf(ev);
+
+            div.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; 
+                            background:${ev.isHoliday ? '#fff5f5' : (ev.color || '#eee')}; 
+                            padding:8px; margin-bottom:5px; border-radius:8px; border: ${ev.isHoliday ? '1px solid #ffcdd2' : 'none'};">
+                    <span onclick="prepareEdit(${originalIndex})" style="cursor:pointer; flex:1; font-weight:${ev.isHoliday ? 'bold' : 'normal'}; color:${ev.isHoliday ? '#c62828' : '#333'};">
+                        ${icon}${ev.text}
+                    </span>
+                    <button onclick="deleteEvent(${originalIndex})" style="border:none; background:none; color:#999; cursor:pointer; font-size:18px; padding:0 5px;">&times;</button>
+                </div>`;
+        });
+
+        if (sortedEvents.length === 0) {
+            div.innerHTML = '<div style="text-align:center; color:#ccc; font-size:12px; padding:10px;">등록된 일정이 없습니다.</div>';
+        }
     };
 
     window.addEvent = async () => {
