@@ -191,13 +191,16 @@
         }
         .memo-container:not(.active)::before { content: '📝'; font-size: 24px; }
         .memo-container:not(.active) #memo-area { display: none !important; }
-
+        .memo-container:not(.active) {
+            cursor: pointer;
+        }
         .memo-container.active {
             border-radius: 15px !important; top: 50% !important; left: 50% !important;
             transform: translate(-50%, -50%) !important;
             width: 90% !important; height: 350px !important;
             z-index: 1001 !important; padding: 15px !important;
             background: #e0f2f1 !important;
+            pointer-events: auto;
         }
         .memo-container.active::before { content: none !important; }
         .memo-container.active #memo-area { display: block !important; }
@@ -303,8 +306,7 @@
         <div class="grid" id="calendar-grid"></div>
     </div>
 
-    <div class="overlay" onclick="closeAll()"></div>
-
+<div class="overlay" onclick="closeMemo(); closeEventModal();"></div>
 <script>
     // 모든 창(일정 모달 + 메모장)을 닫는 통합 함수
     window.closeAll = function() {
@@ -570,28 +572,32 @@ window.renderCalendar = async function() {
 window.toggleMemo = async function() {
     const memoContainer = document.querySelector('.memo-container');
     const memoArea = document.getElementById('memo-area');
-    const overlay = document.querySelector('.overlay'); // 배경 요소 가져오기
-    
-    // 1. 열기 모드 (현재 닫혀있는 상태일 때)
-    if (!memoContainer.classList.contains('active')) {
-        try {
-            const docSnap = await getDoc(doc(db, "planner", "memo"));
-            if (docSnap.exists()) {
-                memoArea.value = docSnap.data().content || "";
-            }
-        } catch (e) {
-            console.error("메모 로딩 실패:", e);
+    const overlay = document.querySelector('.overlay');
+
+    // [핵심] 이미 열려있는(active) 상태라면 함수 종료 (입력 방해 금지)
+    if (memoContainer.classList.contains('active')) return;
+
+    // 닫혀있을 때만 아래 로직 실행 (열기 작업)
+    try {
+        const docSnap = await getDoc(doc(db, "planner", "memo"));
+        if (docSnap.exists()) {
+            memoArea.value = docSnap.data().content || "";
         }
-        
-        // 클래스 추가 및 배경 보이기
-        memoContainer.classList.add('active');
-        overlay.style.display = 'block'; // 배경 어둡게
-    } 
-    // 2. 닫기 모드 (이미 열려있는 상태일 때 클릭하면)
-    else {
-        memoContainer.classList.remove('active');
-        overlay.style.display = 'none'; // 배경 제거
+    } catch (e) {
+        console.error("메모 로딩 실패:", e);
     }
+
+    memoContainer.classList.add('active');
+    overlay.style.display = 'block'; // 배경 어둡게 고정
+};
+
+// [추가] 메모장만 닫는 전용 함수 (닫기 버튼이나 배경 클릭용)
+window.closeMemo = function() {
+    const memoContainer = document.querySelector('.memo-container');
+    const overlay = document.querySelector('.overlay');
+    
+    memoContainer.classList.remove('active');
+    overlay.style.display = 'none';
 };
         
 // 메모장 제어 로직
