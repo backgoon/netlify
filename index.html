@@ -288,7 +288,7 @@
             </span>
             <button class="today-btn" onclick="goToToday()">오늘</button>
         </div>
-        <div class="memo-container">
+        <div class="memo-container" onclick="toggleMemo()">
             <textarea id="memo-area" placeholder="메모를 입력하세요..."></textarea>
         </div>
     </div>
@@ -549,6 +549,29 @@ window.renderCalendar = async function() {
 }
 };
 
+
+window.toggleMemo = async function() {
+const memoContainer = document.querySelector('.memo-container');
+const memoArea = document.getElementById('memo-area');
+
+// 1. 메모장을 열려고 할 때 (현재 열려있지 않은 상태일 때)
+if (!memoContainer.classList.contains('active')) {
+    try {
+        // Firebase에서 최신 메모 데이터를 읽어옵니다.
+        // ("planner" 컬렉션의 "memo" 문서 기준)
+        const docSnap = await getDoc(doc(db, "planner", "memo"));
+        if (docSnap.exists()) {
+            memoArea.value = docSnap.data().content || "";
+        }
+    } catch (e) {
+        console.error("메모 로딩 실패:", e);
+    }
+}
+
+// 2. 클래스 토글 (모바일에서 동그란 아이콘 <-> 큰 메모창 전환)
+memoContainer.classList.toggle('active');
+};
+        
 // 메모장 제어 로직
 memoArea.addEventListener('input', (e) => {
     clearTimeout(memoTimer);
@@ -581,6 +604,8 @@ memoArea.addEventListener('click', (e) => {
     e.stopPropagation();
 });
 
+
+        
 // 달력 조작 함수들 (await 추가)
 window.changeMonth = async (v) => { 
     currentMonth += v; 
