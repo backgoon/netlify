@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -27,4 +27,4 @@ jobs:
         with:
           folder: .
           branch: gh-pages # 중요: 결과물은 gh-pages 브랜치에 저장됨
-          force: true       # 기존 데이터 정리
+          # force: true       # 기존 데이터 정리
