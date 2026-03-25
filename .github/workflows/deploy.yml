@@ -8,26 +8,28 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Replace secrets and Deploy
+      - name: Replace secrets in index.html
         run: |
-          # 1. 금고에서 값을 가져와 임시 환경 변수로 설정합니다.
-          export BDB_API_KEY="${{ secrets.BDB_API_KEY_PLACEHOLDER }}"
-          export BDB_AUTH_DOMAIN="${{ secrets.BDB_AUTH_DOMAIN_PLACEHOLDER }}"
-          export BDB_PROJECT_ID="${{ secrets.BDB_PROJECT_ID_PLACEHOLDER }}"
-          export BDB_STORAGE_BUCKET="${{ secrets.BDB_STORAGE_BUCKET_PLACEHOLDER }}"
-          export BDB_SENDER_ID="${{ secrets.BDB_SENDER_ID_PLACEHOLDER }}"
-          export BDB_APP_ID="${{ secrets.BDB_APP_ID_PLACEHOLDER }}"
-
-          # 2. envsubst 명령어로 index.html 내의 $변수들을 실제 값으로 치환합니다.
-          # (임시 파일에 저장했다가 다시 덮어씁니다)
-          envsubst < index.html > index.tmp && mv index.tmp index.html
+          # index.html에 있는 "$BDB_..."를 찾아서 
+          # GitHub Secrets의 "BDB_..._PLACEHOLDER" 값으로 바꿉니다.
+          
+          sed -i "s|\$BDB_API_KEY|${{ secrets.BDB_API_KEY_PLACEHOLDER }}|g" index.html
+          sed -i "s|\$BDB_AUTH_DOMAIN|${{ secrets.BDB_AUTH_DOMAIN_PLACEHOLDER }}|g" index.html
+          sed -i "s|\$BDB_PROJECT_ID|${{ secrets.BDB_PROJECT_ID_PLACEHOLDER }}|g" index.html
+          sed -i "s|\$BDB_STORAGE_BUCKET|${{ secrets.BDB_STORAGE_BUCKET_PLACEHOLDER }}|g" index.html
+          sed -i "s|\$BDB_SENDER_ID|${{ secrets.BDB_SENDER_ID_PLACEHOLDER }}|g" index.html
+          sed -i "s|\$BDB_APP_ID|${{ secrets.BDB_APP_ID_PLACEHOLDER }}|g" index.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: .
           branch: gh-pages
+          clean: true
