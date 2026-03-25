@@ -14,12 +14,12 @@ jobs:
 
       - name: Replace secrets in index.html
         run: |
-          sed -i "s/FIREBASE_API_KEY_PLACEHOLDER/${{ secrets.FIREBASE_API_KEY }}/g" index.html
-          sed -i "s/FIREBASE_AUTH_DOMAIN_PLACEHOLDER/${{ secrets.FIREBASE_AUTH_DOMAIN }}/g" index.html
-          sed -i "s/FIREBASE_PROJECT_ID_PLACEHOLDER/${{ secrets.FIREBASE_PROJECT_ID }}/g" index.html
-          sed -i "s/FIREBASE_STORAGE_BUCKET_PLACEHOLDER/${{ secrets.FIREBASE_STORAGE_BUCKET }}/g" index.html
-          sed -i "s/FIREBASE_SENDER_ID_PLACEHOLDER/${{ secrets.FIREBASE_SENDER_ID }}/g" index.html
-          sed -i "s/FIREBASE_APP_ID_PLACEHOLDER/${{ secrets.FIREBASE_APP_ID }}/g" index.html
+          sed -i "s/BDB_API_KEY_PLACEHOLDER/${{ secrets.BDB_API_KEY }}/g" index.html
+          sed -i "s/BDB_AUTH_DOMAIN_PLACEHOLDER/${{ secrets.BDB_AUTH_DOMAIN }}/g" index.html
+          sed -i "s/BDB_PROJECT_ID_PLACEHOLDER/${{ secrets.BDB_PROJECT_ID }}/g" index.html
+          sed -i "s/BDB_STORAGE_BUCKET_PLACEHOLDER/${{ secrets.BDB_STORAGE_BUCKET }}/g" index.html
+          sed -i "s/BDB_SENDER_ID_PLACEHOLDER/${{ secrets.BDB_SENDER_ID }}/g" index.html
+          sed -i "s/BDB_APP_ID_PLACEHOLDER/${{ secrets.BDB_APP_ID }}/g" index.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
