@@ -139,15 +139,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "FIREBASE_API_KEY_PLACEHOLDER",
-  authDomain: "FIREBASE_AUTH_DOMAIN_PLACEHOLDER",
-  projectId: "FIREBASE_PROJECT_ID_PLACEHOLDER",
-  storageBucket: "FIREBASE_STORAGE_BUCKET_PLACEHOLDER",
-  messagingSenderId: "FIREBASE_SENDER_ID_PLACEHOLDER",
-  appId: "FIREBASE_APP_ID_PLACEHOLDER"
+const bdbConfig = {
+  apiKey: "BDB_API_KEY_PLACEHOLDER",
+  authDomain: "BDB_AUTH_DOMAIN_PLACEHOLDER",
+  projectId: "BDB_PROJECT_ID_PLACEHOLDER",
+  storageBucket: "BDB_STORAGE_BUCKET_PLACEHOLDER",
+  messagingSenderId: "BDB_SENDER_ID_PLACEHOLDER",
+  appId: "BDB_APP_ID_PLACEHOLDER"
 };
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(bdbConfig);
     const db = getFirestore(app);
 
     let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth();
