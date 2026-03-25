@@ -27,3 +27,4 @@ jobs:
         with:
           folder: .
           branch: gh-pages # 중요: 결과물은 gh-pages 브랜치에 저장됨
+          clean: true       # 기존 데이터 정리
