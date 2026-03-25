@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # 메인 브랜치에 푸시될 때 실행
+      - main
 
 jobs:
   deploy:
@@ -14,6 +14,7 @@ jobs:
 
       - name: Replace secrets in index.html
         run: |
+          # index.html의 PLACEHOLDER를 금고(Secrets)의 진짜 값으로 교체합니다.
           sed -i "s/BDB_API_KEY_PLACEHOLDER/${{ secrets.BDB_API_KEY }}/g" index.html
           sed -i "s/BDB_AUTH_DOMAIN_PLACEHOLDER/${{ secrets.BDB_AUTH_DOMAIN }}/g" index.html
           sed -i "s/BDB_PROJECT_ID_PLACEHOLDER/${{ secrets.BDB_PROJECT_ID }}/g" index.html
@@ -24,5 +25,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: . # 현재 폴더 전체 배포
-          branch: gh-pages # 결과물을 gh-pages 브랜치에 저장
+          folder: .
+          branch: gh-pages # 중요: 결과물은 gh-pages 브랜치에 저장됨
