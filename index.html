@@ -315,13 +315,13 @@ const bdbConfig = {
     });
 
 window.openYearlyView = async () => {
-    const container = document.getElementById('yearly-list-container');
+    const container = document.getElementById('yearly-list-container'); 
     container.innerHTML = '<div style="text-align:center; padding:20px; font-size:14px;">데이터 로딩 중...</div>';
     
     document.getElementById('yearly-modal').style.display = 'flex';
     document.getElementById('overlay').style.display = 'block';
 
-    // 1. API 데이터 가져오기
+    // 가족 일정 코드처럼 현재 연도를 넘겨서 hList를 가져옵니다.
     const hList = await fetchHolidays(currentYear); 
     container.innerHTML = '';
     document.getElementById('yearly-title').innerText = currentYear;
@@ -333,30 +333,27 @@ window.openYearlyView = async () => {
         for(let d = 1; d <= lastDay; d++) {
             const dateStr = `${currentYear}-${m}-${d}`;
             
-            // [해결 포인트] 두 가지 날짜 형식을 모두 체크합니다.
-            const apiKey = `${m}-${d}`; // "1-1" 형식
-            const apiKeyWithZero = `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; // "01-01" 형식
-            
-            // API에서 가져온 명칭 (둘 중 하나라도 걸리면 가져옴)
-            const apiHName = hList[apiKey] || hList[apiKeyWithZero];
-            
+            // [가족 일정의 핵심 로직 적용]
+            const fixH = hList[`${m}-${d}`]; 
             const dayEvents = data[dateStr] || [];
+            
             let combined = [];
 
-            // 1. API 공휴일 (설날, 추석 등)
-            if(apiHName) {
-                combined.push(`<span class="yearly-holiday-bold">[${apiHName}]</span>`);
+            // 1. API 공휴일 (설날, 추석 등) - 굵게 처리
+            if(fixH) {
+                combined.push(`<span class="yearly-holiday-bold" style="color:red; font-weight:800;">[${fixH}]</span>`);
             }
 
-            // 2. 사용자 일정 처리 (근무 제외)
-            const personal = dayEvents.filter(ev => !ev.isWork)
-                                     .sort((a, b) => (a.isHoliday === b.isHoliday ? 0 : a.isHoliday ? -1 : 1));
+            // 2. 사용자 입력 데이터 처리 (isWork 제외)
+            const personalEvents = dayEvents
+                .filter(ev => ev.isWork !== true)
+                .sort((a, b) => (a.isHoliday === b.isHoliday ? 0 : a.isHoliday ? -1 : 1));
             
-            personal.forEach(ev => {
+            personalEvents.forEach(ev => {
                 if(ev.isHoliday) {
-                    // API 명칭과 겹치지 않을 때만 추가
-                    if(ev.text !== apiHName) {
-                        combined.push(`<span class="yearly-holiday-bold">[${ev.text}]</span>`);
+                    // API 공휴일과 중복되지 않는 경우만 추가
+                    if(ev.text !== fixH) {
+                        combined.push(`<span class="yearly-holiday-bold" style="color:red; font-weight:800;">[${ev.text}]</span>`);
                     }
                 } else {
                     combined.push(ev.text);
@@ -364,15 +361,20 @@ window.openYearlyView = async () => {
             });
 
             if (combined.length > 0) {
-                const isRed = apiHName || dayEvents.some(ev => ev.isHoliday);
+                // 공휴일이 있는 날은 날짜 숫자도 빨간색으로
+                const isRedDay = fixH || dayEvents.some(ev => ev.isHoliday);
+                
                 mHtml += `<div style="display:flex; padding:8px 5px; border-bottom:1px solid #f2f2f2; font-size:14px; align-items:flex-start;">
-                    <span style="width:40px; font-weight:800; color:${isRed ? '#e53935' : '#555'};">${d}일</span>
+                    <span style="width:40px; font-weight:800; color:${isRedDay ? '#e53935' : '#555'};">${d}일</span>
                     <span style="flex:1; line-height:1.4;">${combined.join(', ')}</span>
                 </div>`;
             }
         }
         if (mHtml) {
-            container.innerHTML += `<div style="margin-top:15px; border-bottom:2px solid var(--pink); padding-bottom:5px; font-weight:bold; color:var(--pink); font-size:16px;">${m}월</div>` + mHtml;
+            container.innerHTML += `
+                <div style="margin-top:15px; border-bottom:2px solid var(--pink); padding-bottom:5px; font-weight:bold; color:var(--pink); font-size:16px;">
+                    ${m}월
+                </div>` + mHtml;
         }
     }
 };
