@@ -315,7 +315,14 @@ const bdbConfig = {
     });
 
 window.openYearlyView = async () => {
-    // ... 상단 생략 (모달 열기 및 hList 가져오기) ...
+    const container = document.getElementById('yearly-list-container'); 
+    container.innerHTML = '<div style="text-align:center; padding:20px;">데이터 로딩 중...</div>';
+    
+    document.getElementById('yearly-modal').style.display = 'flex';
+    document.getElementById('overlay').style.display = 'block';
+
+    // 현재 연도 확인 (없으면 올해 연도 강제 지정)
+    const targetYear = typeof currentYear !== 'undefined' ? currentYear : new Date().getFullYear();
     const hList = await fetchHolidays(currentYear); 
     container.innerHTML = '';
     
@@ -362,7 +369,9 @@ window.openYearlyView = async () => {
                 </div>`;
             }
         }
-        // ... 하단 월별 출력 로직 생략 ...
+        if (mHtml) {
+            container.innerHTML += `<div style="margin-top:15px; border-bottom:2px solid var(--pink); padding-bottom:5px; font-weight:bold; color:var(--pink); font-size:16px;">${m}월</div>` + mHtml;
+        }
     }
 };
 
