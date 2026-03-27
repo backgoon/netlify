@@ -315,13 +315,13 @@ const bdbConfig = {
     });
 
 window.openYearlyView = async () => {
-    const container = document.getElementById('yearly-list-container'); 
+    const container = document.getElementById('yearly-list-container');
     container.innerHTML = '<div style="text-align:center; padding:20px; font-size:14px;">데이터 로딩 중...</div>';
     
     document.getElementById('yearly-modal').style.display = 'flex';
     document.getElementById('overlay').style.display = 'block';
 
-    // [핵심] 현재 달력의 연도를 기준으로 API 공휴일 호출
+    // 1. API 데이터 가져오기
     const hList = await fetchHolidays(currentYear); 
     container.innerHTML = '';
     document.getElementById('yearly-title').innerText = currentYear;
@@ -332,14 +332,18 @@ window.openYearlyView = async () => {
         
         for(let d = 1; d <= lastDay; d++) {
             const dateStr = `${currentYear}-${m}-${d}`;
-            // API 데이터 매칭용 키 (예: "1-1", "5-5")
-            const apiKey = `${m}-${d}`; 
-            const apiHName = hList[apiKey]; // 여기서 설날, 추석 등이 잡힙니다.
+            
+            // [해결 포인트] 두 가지 날짜 형식을 모두 체크합니다.
+            const apiKey = `${m}-${d}`; // "1-1" 형식
+            const apiKeyWithZero = `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; // "01-01" 형식
+            
+            // API에서 가져온 명칭 (둘 중 하나라도 걸리면 가져옴)
+            const apiHName = hList[apiKey] || hList[apiKeyWithZero];
             
             const dayEvents = data[dateStr] || [];
             let combined = [];
 
-            // 1. API 법정 공휴일 (설날, 추석 등)
+            // 1. API 공휴일 (설날, 추석 등)
             if(apiHName) {
                 combined.push(`<span class="yearly-holiday-bold">[${apiHName}]</span>`);
             }
@@ -350,7 +354,7 @@ window.openYearlyView = async () => {
             
             personal.forEach(ev => {
                 if(ev.isHoliday) {
-                    // API와 중복되지 않는 사용자 정의 공휴일만 추가
+                    // API 명칭과 겹치지 않을 때만 추가
                     if(ev.text !== apiHName) {
                         combined.push(`<span class="yearly-holiday-bold">[${ev.text}]</span>`);
                     }
