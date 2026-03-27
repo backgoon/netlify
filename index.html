@@ -316,68 +316,59 @@ const bdbConfig = {
 
 window.openYearlyView = async () => {
     const container = document.getElementById('yearly-list-container'); 
-    container.innerHTML = '<div style="text-align:center; padding:20px; font-size:14px;">데이터 로드 중...</div>';
+    container.innerHTML = '<div style="text-align:center; padding:20px; font-size:14px;">데이터 로딩 중...</div>';
     
     document.getElementById('yearly-modal').style.display = 'flex';
     document.getElementById('overlay').style.display = 'block';
 
-    // 1. 현재 연도의 API 공휴일 데이터를 미리 가져옴
-    const apiHolidays = await fetchHolidays(currentYear); 
+    // [핵심] 현재 달력의 연도를 기준으로 API 공휴일 호출
+    const hList = await fetchHolidays(currentYear); 
     container.innerHTML = '';
     document.getElementById('yearly-title').innerText = currentYear;
 
     for (let m = 1; m <= 12; m++) {
-        let monthHtml = '';
+        let mHtml = '';
         const lastDay = new Date(currentYear, m, 0).getDate();
-
-        for (let d = 1; d <= lastDay; d++) {
+        
+        for(let d = 1; d <= lastDay; d++) {
             const dateStr = `${currentYear}-${m}-${d}`;
-            const holidayKey = `${m}-${d}`;
+            // API 데이터 매칭용 키 (예: "1-1", "5-5")
+            const apiKey = `${m}-${d}`; 
+            const apiHName = hList[apiKey]; // 여기서 설날, 추석 등이 잡힙니다.
             
-            // [중요] API에서 가져온 공휴일 명칭 (설날, 추석 등)
-            const apiHolidayName = apiHolidays[holidayKey];
             const dayEvents = data[dateStr] || [];
-            
-            let combinedItems = [];
+            let combined = [];
 
-            // 1순위: API 법정 공휴일 추가
-            if (apiHolidayName) {
-                combinedItems.push(`<span class="yearly-holiday-bold">[${apiHolidayName}]</span>`);
+            // 1. API 법정 공휴일 (설날, 추석 등)
+            if(apiHName) {
+                combined.push(`<span class="yearly-holiday-bold">[${apiHName}]</span>`);
             }
 
-            // 2순위: 사용자 입력 데이터 처리 (근무 제외)
-            const filteredEvents = dayEvents
-                .filter(ev => !ev.isWork)
-                .sort((a, b) => (a.isHoliday === b.isHoliday ? 0 : a.isHoliday ? -1 : 1));
-
-            filteredEvents.forEach(ev => {
-                if (ev.isHoliday) {
-                    // 사용자 수동 등록 공휴일 (이미 API에 있는 거면 중복 방지)
-                    if (ev.text !== apiHolidayName) {
-                        combinedItems.push(`<span class="yearly-holiday-bold">[${ev.text}]</span>`);
+            // 2. 사용자 일정 처리 (근무 제외)
+            const personal = dayEvents.filter(ev => !ev.isWork)
+                                     .sort((a, b) => (a.isHoliday === b.isHoliday ? 0 : a.isHoliday ? -1 : 1));
+            
+            personal.forEach(ev => {
+                if(ev.isHoliday) {
+                    // API와 중복되지 않는 사용자 정의 공휴일만 추가
+                    if(ev.text !== apiHName) {
+                        combined.push(`<span class="yearly-holiday-bold">[${ev.text}]</span>`);
                     }
                 } else {
-                    // 일반 개인 일정
-                    combinedItems.push(ev.text);
+                    combined.push(ev.text);
                 }
             });
 
-            // 공휴일이나 일정이 있는 날만 리스트에 추가
-            if (combinedItems.length > 0) {
-                const isRedDay = apiHolidayName || dayEvents.some(ev => ev.isHoliday);
-                monthHtml += `
-                    <div style="display:flex; padding:8px 5px; border-bottom:1px solid #f2f2f2; align-items:flex-start; font-size:14px;">
-                        <span style="width:40px; font-weight:800; color:${isRedDay ? '#e53935' : '#555'};">${d}일</span>
-                        <span style="flex:1; line-height:1.4;">${combinedItems.join(', ')}</span>
-                    </div>`;
+            if (combined.length > 0) {
+                const isRed = apiHName || dayEvents.some(ev => ev.isHoliday);
+                mHtml += `<div style="display:flex; padding:8px 5px; border-bottom:1px solid #f2f2f2; font-size:14px; align-items:flex-start;">
+                    <span style="width:40px; font-weight:800; color:${isRed ? '#e53935' : '#555'};">${d}일</span>
+                    <span style="flex:1; line-height:1.4;">${combined.join(', ')}</span>
+                </div>`;
             }
         }
-
-        if (monthHtml) {
-            container.innerHTML += `
-                <div style="margin-top:15px; border-bottom:2px solid var(--pink); padding-bottom:5px; font-weight:bold; color:var(--pink); font-size:16px;">
-                    ${m}월
-                </div>` + monthHtml;
+        if (mHtml) {
+            container.innerHTML += `<div style="margin-top:15px; border-bottom:2px solid var(--pink); padding-bottom:5px; font-weight:bold; color:var(--pink); font-size:16px;">${m}월</div>` + mHtml;
         }
     }
 };
@@ -386,6 +377,18 @@ window.closeYearlyView = () => {
     document.getElementById('yearly-modal').style.display = 'none';
     document.getElementById('overlay').style.display = 'none';
 };
+
+document.getElementById('overlay').addEventListener('click', () => {
+    // 연간 일정 모달이 열려있으면 닫기 함수 실행
+    if(document.getElementById('yearly-modal').style.display === 'flex') {
+        window.closeYearlyView(); 
+    }
+    
+    // 일반 등록/수정 모달(closeModal)이 있다면 그것도 닫기
+    if(typeof closeModal === 'function') {
+        closeModal();
+    }
+});
     
     // [추가] 모바일 터치 스와이프 기능
     let touchStartX = 0;
